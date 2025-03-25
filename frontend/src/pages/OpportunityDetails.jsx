@@ -4,12 +4,18 @@ import PageTransition from '../components/PageTransition';
 import { useUser } from '../contexts/UserContext';
 import api from '../utils/api';
 import { format } from 'date-fns';
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+
 
 const OpportunityDetails = () => {
   const { id } = useParams();
   const [opportunity, setOpportunity] = useState(null);
   const mapRef = useRef(null);
   const { user } = useUser();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDates, setSelectedDates] = useState([])
+
 
   useEffect(() => {
     const fetchOpportunity = async () => {
@@ -42,9 +48,39 @@ const OpportunityDetails = () => {
     });
   };
 
-  const handleApply = async () => {
+  const handleDateClick = (clickedDate) => {
+
+    setSelectedDates((prevDates) => {
+      let index = -1
+    for (let i = 0; i < prevDates.length; i++) {
+      if (prevDates[i].getTime() === clickedDate.getTime()) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index !== -1) {
+      const updatedDates = {...prevDates};
+      updatedDates.splice(index, 1);
+      return updatedDates;
+    } else {
+      return [...prevDates, clickedDate]
+    }
+    });
+  }
+
+  const handleConfirm = () => {
+    setShowModal(false);
+    handleApply(selectedDates)
+  }
+
+
+  const handleApply = async (selectedDates) => {
     try {
-      await api.post(`/opportunities/${id}/apply/`)
+      await api.post(`/opportunities/${id}/apply/`, {
+        dates: selectedDates.map(date => date.toISOString().split("T")[0]),
+    })
+
       // Refresh opportunity data to update application status
       const response = await api.get(`/opportunities/${id}/`, {
         withCredentials: true,
@@ -110,6 +146,11 @@ const OpportunityDetails = () => {
 
                 {/* Impact */}
                 <div>
+                  <h2 className="text-xl font-medium text-gray-900 mb-4">Date</h2>
+                  <p className="text-gray-600">{opportunity.start_date.split("T")[0]} to {opportunity.end_date.split("T")[0]}</p>
+                </div>
+
+                <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Estimated Shift Times</h2>
                   <p className="text-gray-600">{opportunity.start_time}:00 - {opportunity.end_time}:00</p>
                 </div>
@@ -150,11 +191,44 @@ const OpportunityDetails = () => {
                 {/* Apply Button */}
                 <button
                   className="w-full px-6 py-3 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
-                  onClick={handleApply}
+                  onClick={() => setShowModal(true)}
                   disabled={opportunity.has_applied}
                 >
                   {opportunity.has_applied ? 'Applied' : 'Apply Now'}
                 </button>
+
+                {/*Calendar Modal */}
+                {showModal && (
+                  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 className="text-lg font-bold">Select a Date or Dates</h2>
+                    <p className="text-gray-600">Choose when you want to apply for.</p>
+                    
+                    <Calendar onClickDay={handleDateClick} tileClassName={({ date }) =>
+                  selectedDates.some((d) => d.getTime() === date.getTime()) ? "highlight" : null
+                  } />
+                    
+                    <p className="font-semibold mt-2">Selected Dates:</p>
+                    {selectedDates.map((d, index) => (
+                      <p key={index} className="ml-4">{d.toDateString()}</p>
+                    ))}
+        
+                    <div className="flex justify-end space-x-4 mt-4">
+                      <button 
+                        onClick={() => setShowModal(false)} 
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded">
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={handleConfirm} 
+                        className="px-4 py-2 bg-blue-500 text-white rounded">
+                        Confirm Date
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
 
                 {/* Share Button */}
                 <Link to={`/opportunity/${id}/discussions`} className="w-full px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">

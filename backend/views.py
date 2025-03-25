@@ -71,7 +71,7 @@ def calculate_impact(charity, volunteer):
     else:
         participants_at_application = current_application.current_volunteers
         date_time_applied = current_application.date_applied
-        duration_taken = int(datetime.now().day - current_application.date_applied.day)
+        duration_taken = int(len(current_application.dates_worked.split(",")))
 
     # Open and load JSON file to get population data
     file_path = os.path.join(os.path.dirname(__file__), "components", "gb.json")
@@ -286,7 +286,10 @@ def api_volunteer_list(request):
 def api_volunteer_pending(request, id):
     data = [{
         'id': app.volunteer.user.id,
-        'application_id': app.id,
+        'application': {
+            'id': app.id,
+            'dates_worked': app.dates_worked
+        },
         'volunteer_id': app.volunteer.id,
         'f_name': app.volunteer.user.first_name,
         'l_name': app.volunteer.user.last_name,
@@ -312,6 +315,10 @@ def api_volunteer_pending(request, id):
 def api_volunteer_requested(request, id):
     data = [{
         'id': app.volunteer.user.id,
+        'application': {
+            'id': app.id,
+            'dates_worked': app.dates_worked
+        },
         'application_id': app.id,
         'volunteer_id': app.volunteer.id,
         'f_name': app.volunteer.user.first_name,
@@ -454,7 +461,8 @@ def api_volunteer_detail(request, id):
         "is_user": bool(
             request.user == user.user
         ),
-        'interests': [interest.id for interest in user.interests.all()],
+        'interests': [{'id': interest.id, 'name': interest.name, 'category': interest.category.name} for interest in user.interests.all()],
+        'interests_ids': [interest.id for interest in user.interests.all()],
         'showName': user.name_share_public,
         'showFriends': user.public_friends
     }
@@ -1020,6 +1028,11 @@ def api_list_interests(request):
 
 @api_view(["POST"])
 def api_apply_opportunity(request, id):
+    global stringOfDates
+    stringOfDates = ", ".join(request.data['dates'])
+
+    print(stringOfDates)
+
     if request.method == "POST":
         status = "pending"
         user = request.user
@@ -1031,8 +1044,8 @@ def api_apply_opportunity(request, id):
         message = "Thank you for applying to the opportunity " + opportunity.title + ", we will be in contact shortly after we have reviewed your application!"
         if opportunity.organization.automatic_accepting:
             status = "accepted"
-            message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", Thank you for your application!"
-        Application.objects.create(volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
+            message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", for the dates " + stringOfDates + ". Thank you for your application!"
+        Application.objects.create(dates_worked = stringOfDates, volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
         opportunity.current_volunteers_count += 1
         opportunity.save()
         Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization, message = message)
@@ -1070,7 +1083,7 @@ def api_application_update(request, id, mode):
         organisation = app.opportunity.organization.name
         opportunity = app.opportunity.title
         if mode == "accepted":
-            message = "Hi there, thank you for your recent application to our " + opportunity + " opportunity, we are contacting you to let you know that we have approved your application and were excited to see you soon!"
+            message = message = "Hi there, thank you for your recent application to our " + opportunity + " opportunity, we are contacting you to let you know that we have approved your application for the dates " + stringOfDates +" and we're excited to see you soon!"
         elif mode == "requesting_complete":
             message = "Hi again, we have recieved your request to tick off you application for " + opportunity + ", it is under review and you should hear from us again soon!"
         elif mode == "rejected":

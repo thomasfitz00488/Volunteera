@@ -5,12 +5,12 @@ import Spin from '../components/LoadingSpinner';
 import api from '../utils/api';
 
 // Application Card component
-const ApplicationCard = ({ volunteer, application_id, refresh }) => {
+const ApplicationCard = ({ volunteer, application, refresh }) => {
 
     async function handleApplication(mode){
 
         try {
-            await api.post(`/application/update/${application_id}/${mode}/`);
+            await api.post(`/application/update/${application.id}/${mode}/`);
             refresh();
             } catch (error) {
             console.error('Error:', error);
@@ -18,10 +18,12 @@ const ApplicationCard = ({ volunteer, application_id, refresh }) => {
 
     }
 
+
     return (
         <div className='volunteer'>
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="flex p-6">
+              
             {volunteer.display_name}
             <button
                 onClick={() => handleApplication("rejected")}
@@ -42,25 +44,25 @@ const ApplicationCard = ({ volunteer, application_id, refresh }) => {
                 View Volunteer
             </Link>
             </div>
+            {application.dates_worked}
         </div>
         </div>
     );
 };
 
 // Opportunity Card component
-const RequestCard = ({ volunteer, application_id, refresh }) => {
+const RequestCard = ({ volunteer, application, refresh }) => {
 
     async function handleApplication(mode){
 
         try {
-            await api.post(`/application/update/${application_id}/${mode}/`);
+            await api.post(`/application/update/${application.id}/${mode}/`);
             refresh();
             } catch (error) {
             console.error('Error:', error);
             }
 
     }
-
     return (
         <div className='volunteer'>
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -85,6 +87,7 @@ const RequestCard = ({ volunteer, application_id, refresh }) => {
                 View Volunteer
             </Link>
             </div>
+            {application.dates_worked}
         </div>
         </div>
     );
@@ -161,48 +164,54 @@ const OpportunityPendingApplications = () => {
 
 
 
-                {/* Application Side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {isLoading ? (
-                    <div className="col-span-2 text-center py-12">
-                        <Spin/>
+              <div className="flex flex-col md:flex-row justify-between gap-6">
+                  {/* Application Side */}
+                  <div className="w-full md:w-1/2">
+                    <div className="grid grid-cols-1 gap-6">
+                      {isLoading ? (
+                        <div className="text-center py-12">
+                          <Spin />
+                        </div>
+                      ) : volunteers.length === 0 ? (
+                        <div className="text-center py-12">
+                          <p className="text-gray-500">No applications found</p>
+                        </div>
+                      ) : (
+                        volunteers.map((volunteer) => (
+                          <ApplicationCard
+                            key={volunteer.id}
+                            volunteer={volunteer}
+                            application={volunteer.application}
+                            refresh={fetchVolunteers}
+                          />
+                        ))
+                      )}
                     </div>
-                    ) : volunteers.length === 0 ? (
-                    <div className="col-span-2 text-center py-12">
-                        <p className="text-gray-500">No applications found</p>
-                    </div>
-                    ) : (
-                    volunteers.map(volunteer => (
-                        <ApplicationCard
-                        key={volunteer.id}
-                        volunteer={volunteer}
-                        application_id = {volunteer.application_id}
-                        refresh = {fetchVolunteers}
-                        />
-                    ))
-                    )}
-                </div>
+                  </div>
 
-                {/* Requested Completion Side */}
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                    {isLoading ? (
-                    <div className="col-span-2 text-center py-12">
-                        <Spin/>
+                  {/* Requested Completion Side */}
+                  <div className="w-full md:w-1/2">
+                    <div className="grid grid-cols-1 gap-6">
+                      {isLoading ? (
+                        <div className="text-center py-12">
+                          <Spin />
+                        </div>
+                      ) : volunteersRequested.length === 0 ? (
+                        <div className="text-center py-12">
+                          <p className="text-gray-500">No applications found</p>
+                        </div>
+                      ) : (
+                        volunteersRequested.map((volunteer) => (
+                          <RequestCard
+                            key={volunteer.id}
+                            volunteer={volunteer}
+                            application={volunteer.application}
+                            refresh={fetchVolunteers}
+                          />
+                        ))
+                      )}
                     </div>
-                    ) : volunteersRequested.length === 0 ? (
-                    <div className="col-span-2 text-center py-12">
-                        <p className="text-gray-500">No applications found</p>
-                    </div>
-                    ) : (
-                    volunteersRequested.map(volunteer => (
-                        <RequestCard
-                        key={volunteer.id}
-                        volunteer={volunteer}
-                        application_id = {volunteer.application_id}
-                        refresh = {fetchVolunteers}
-                        />
-                    ))
-                    )}
+                  </div>
                 </div>
 
               </div>

@@ -1,5 +1,4 @@
 import React from 'react';
-import EditForm from '../components/EditForm';
 import PageTransition from '../components/PageTransition';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
@@ -51,7 +50,7 @@ const VolunteerSettings = () => {
             f_name: response.f_name,
             l_name: response.l_name,
             display_name: response.display_name,
-            interests: response.interests
+            interests: response.interests_ids
         }
         setFormData((prevData) => ({
             ...prevData, 

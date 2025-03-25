@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaMedal, FaClock, FaUsers, FaTrophy } from 'react-icons/fa';
+import { FaMedal, FaClock, FaUsers, FaTrophy, FaLightbulb } from 'react-icons/fa';
 import PageTransition from '../components/PageTransition';
 import { useUser } from '../contexts/UserContext'
 import Spin from '../components/LoadingSpinner';
@@ -90,7 +90,7 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
 
     {completeButton ? (
     <div className='flex justfy-end items-center w-full'>
-      <span className="text-sm text-gray-700 mr-4">Think you have completeed this activity?</span>
+      <span className="text-sm text-gray-700 mr-4">Think you have completed this activity?</span>
       <button
           className="px-6 py-3 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
           onClick={() => handleClick("requesting_complete")}
@@ -104,6 +104,79 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
   )
 }
 
+const ForYouCard = ({ opportunity }) => {
+  return (
+    <div className='opportunity'>
+      <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="p-6">
+          {/* Header section */}
+          <div className="flex flex-col gap-4">
+            {/* Title and Organization */}
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">{opportunity.image || '📋'}</span>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {opportunity.title}
+                </h3>
+
+                <p className="text-sm text-gray-500">
+                  {opportunity.organization.name}
+                </p>
+              </div>
+              <h4 className='text-sm text-gray-500'>
+                  Effort: {opportunity.effort}
+              </h4>
+            </div>
+
+            {/* Verification Badges */}
+            <div className="flex flex-wrap gap-2">
+              {opportunity.organization.companiesHouseVerified && (
+                <VerificationBadge type="companiesHouse" />
+              )}
+              {opportunity.organization.charitiesCommissionVerified && (
+                <VerificationBadge type="charitiesCommission" />
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="mt-4 text-gray-600">
+            {opportunity.description}
+          </p>
+
+          {/* Tags */}
+          {opportunity.tags && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {opportunity.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="mt-6 flex justify-between items-center">
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span className="flex items-center gap-1">
+                <span>📍</span> {opportunity.location_name}
+              </span>
+            </div>
+            <Link
+              to={`/opportunity/${opportunity.id}`}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+            >
+              Learn More
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 
 // Add this new component for animated counting
@@ -242,8 +315,10 @@ const VolunteerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [FRIENDS, setFriends] = useState([]);
   const [MESSAGES, setMessages] = useState([]);
+  const [INTEREST, setInterest] = useState([]);
   const [pending, setPending] = useState([]);
   const [accepted, setAccepted] = useState([]);
+  const [categories, setCategories] = useState([]);
   const { user } = useUser();
   const {id} = useParams();
   const location = useLocation();
@@ -252,12 +327,49 @@ const VolunteerDashboard = () => {
   const [showAllAccepted, setShowAllAccepted] = useState(false);
   const [update, setUpdate] = useState(false);
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'stats');
+  const [opportunities, setOpportunities] = useState([]);
+  const [filteredOpportunities, setFilteredOpportunities] = useState([]);
   
+  
+  const fetchOpportunities = async () => {
+    try {
+      const response = await api.get('/opportunities/');
+      setOpportunities(response);
+    } catch (error) {
+      console.error('Error fetching opportunities:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOpportunities();
+  }, []);
+
+  function filterOpportunities(category) {
+    let arr = [];
+
+    opportunities.forEach(opp => {
+      if(opp.categories.includes(category)){
+        arr.push(opp)
+      }
+    })
+    return arr;
+  }
+
+  function OppMultiplier(category, percentage) {
+    if(opportunities.length != 0){
+      let arr = filterOpportunities(category);
+      const num = Math.round(percentage / 20);
+      arr = arr.slice(0, num);
+      setFilteredOpportunities((prevItems) => [...prevItems, ...arr]);
+    }
+    
+  }
 
   const visibleMessages = showAll ? MESSAGES : MESSAGES.slice(0, 3);
   const visible_pending = showAllPending ? pending : pending.slice(0, 1);
   const visible_accepted = showAllAccepted ? accepted : accepted.slice(0, 1);
   let user_id = 0
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -277,11 +389,34 @@ const VolunteerDashboard = () => {
         }
 
         const response2 = await api.get('/volunteer/' + user_id + '/');
-        setVolunteer(response2);
-        setFriends(response2.friends);
-        setMessages(response2.messages);
-        setPending(response2.pending_applications);
-        setAccepted(response2.accepted_applications);
+        
+        const categoryCounts = {};
+
+        if (response2.interests && response2.interests.length > 0) {
+          response2.interests.forEach((interest) => {
+            const category = interest.category;
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+          });
+        }
+
+      const totalInterests = Object.values(categoryCounts).reduce((acc, count) => acc + count, 0);
+      const interestPercentages = {};
+
+      Object.keys(categoryCounts).forEach((category) => {
+        interestPercentages[category] = (categoryCounts[category] / totalInterests) * 100;
+      });
+
+      setVolunteer({...response2, categoryCounts, interestPercentages});
+      setFriends(response2.friends);
+      setMessages(response2.messages);
+      setPending(response2.pending_applications);
+      setAccepted(response2.accepted_applications);
+      setInterest(response2.interests);
+      setFilteredOpportunities([])
+        Object.entries(interestPercentages).forEach(([category, percentage]) => {
+          OppMultiplier(category, percentage);
+        });
+
 
 
       } catch (error) {
@@ -293,7 +428,7 @@ const VolunteerDashboard = () => {
     if(user){
       fetchUser();
     }
-  }, [user, showAll, update], );
+  }, [user, showAll, update, opportunities], );
 
 
 
@@ -445,7 +580,7 @@ const VolunteerDashboard = () => {
                 </button>)}
               </li>
               <li className="mr-2">
-                {volunteer.showFriends && (<button 
+                {(volunteer.showFriends || volunteer.is_user) && (<button 
                   className={`inline-flex items-center justify-center p-4 rounded-t-lg border-b-2 ${activeTab === 'friends' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
                   onClick={() => setActiveTab('friends')}
                 >
@@ -462,10 +597,22 @@ const VolunteerDashboard = () => {
                   Badges
                 </button>
               </li>
+              <li className="mr-2">
+                <button 
+                  className={`inline-flex items-center justify-center p-4 rounded-t-lg border-b-2 ${activeTab === 'foryou' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
+                  onClick={() => setActiveTab('foryou')}
+                >
+                  <FaLightbulb className="w-4 h-4 mr-2" />
+                  For you
+                </button>
+              </li>
+
             </ul>
             </div>
             
             {/* Tab Content */}
+
+          
           {activeTab === 'stats' && volunteer.is_user && (
             <>
           {/* Pending Applications Tab */}
@@ -587,6 +734,22 @@ const VolunteerDashboard = () => {
             <Badge volunteer = {volunteer}/>
           )}
           </>
+
+          {activeTab === 'foryou' && (
+            <>
+              
+              {/* For you Section */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Opportunities recommended based off interests! </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {filteredOpportunities.map(opp => (
+                        <ForYouCard key={opp.id} opportunity={opp} />
+                    ))}
+                </div>
+              </div>
+            </>
+          )}
+
         </div>
       </div>
       )}
