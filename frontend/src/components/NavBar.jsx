@@ -8,6 +8,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [rainbowVisible, setRainbowVisible] = useState(false);
   const [showRegisterDropdown, setShowRegisterDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -62,84 +63,132 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
 
             {/* Desktop menu */}
             <div className="hidden sm:flex sm:items-center sm:space-x-6">
-              <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Home
-              </Link>
+              {!user && (
+                <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                  Home
+                </Link>
+              )}
               <Link to="/browse" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Browse
               </Link>
-              {user && (
-                <>
-                  <Link to="/dashboard" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                    Dashboard
-                  </Link>
-                  {user.is_organization && (
-                    <Link
-                      to="/opportunities/create"
-                      className="px-4 py-2 text-sm font-medium rounded-full text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Create Opportunity
-                    </Link>
-                  )}
-                </>
-              )}
-              {user && !user.is_organization && (
-                <Link
-                  to="/friends"
-                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-                >
-                  Friends
-                </Link>
-              )}
-              <Link
-                to="/leaderboard"
-                className='px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900'
-              >
-                Leaderboard
-              </Link>
-
 
               {user ? (
-                <div className="relative ml-3 flex items-center space-x-4">
-                  <div className="flex items-center">
-                    {user.is_organization && (
-                      <span className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
-                        Organization
-                      </span>
-                    )}
-                    <div className="flex items-center space-x-3">
-                      {user.avatar_url && (
-                        <img
-                          src={user.avatar_url}
-                          alt="Profile"
-                          className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                        />
-                      )}
-                      <span className="text-sm font-medium text-gray-700">{user.email}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+                <div className="relative ml-3">
+                  <button 
+                    onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                    className="flex items-center space-x-3 focus:outline-none group"
                   >
-                    Logout
+                    <div className="flex items-center">
+                      {user.is_organization && (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                          Organization
+                        </span>
+                      )}
+                      <div className="flex items-center space-x-3">
+                        {user.avatar_url ? (
+                          <img
+                            src={user.avatar_url}
+                            alt="Profile"
+                            className="w-8 h-8 rounded-full object-cover border border-gray-200 group-hover:border-blue-400 transition-all"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white group-hover:shadow-md transition-all">
+                            {user.email?.charAt(0).toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{user.email}</span>
+                        <svg
+                          className={`h-4 w-4 text-gray-500 transition-all duration-300 group-hover:text-blue-500 ${showProfileDropdown ? 'rotate-180 text-blue-500' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </button>
+                  
+                  {/* Profile Dropdown Menu */}
+                  {showProfileDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-3 w-56 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 overflow-hidden"
+                    >
+                      <div className="py-1">
+                        <Link to="/dashboard" className="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                          <svg className="mr-3 h-4 w-4 text-gray-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                          Dashboard
+                        </Link>
+                      </div>
+                      
+                      {user.is_organization && (
+                        <div className="py-1 border-t border-gray-100">
+                          <Link to="/opportunities/create" className="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <svg className="mr-3 h-4 w-4 text-gray-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Create Opportunity
+                          </Link>
+                        </div>
+                      )}
+                      
+                      {!user.is_organization && (
+                        <div className="py-1 border-t border-gray-100">
+                          <Link to="/friends" className="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <svg className="mr-3 h-4 w-4 text-gray-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            Friends
+                          </Link>
+                        </div>
+                      )}
+                      
+                      <div className="py-1 border-t border-gray-100">
+                        <Link to="/leaderboard" className="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                          <svg className="mr-3 h-4 w-4 text-gray-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          Leaderboard
+                        </Link>
+                      </div>
+                      
+                      <div className="py-1 border-t border-gray-100">
+                        <Link to="/about" className="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                          <svg className="mr-3 h-4 w-4 text-gray-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          About Us
+                        </Link>
+                      </div>
+                      
+                      <div className="py-1 border-t border-gray-100 bg-red-50">
+                        <button
+                          onClick={handleLogout}
+                          className="group flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-100 transition-colors"
+                        >
+                          <svg className="mr-3 h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                          </svg>
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               ) : (
                 <>
-                  <Link to="/login" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                    Login
-                  </Link>
-
                   {/* Register Dropdown */}
                   <div className="relative">
                     <button
                       onClick={() => setShowRegisterDropdown(!showRegisterDropdown)}
                       onBlur={() => setTimeout(() => setShowRegisterDropdown(false), 100)}
-                      className="ml-2 px-4 py-2 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors flex items-center"
+                      className="px-4 py-2 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors flex items-center"
                     >
                       Register
                       <svg
@@ -178,12 +227,15 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
                       </motion.div>
                     )}
                   </div>
+                  
+                  <Link to="/login" className="ml-3 px-4 py-2 text-sm font-medium rounded-full text-blue-600 border border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors flex items-center">
+                    <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    Login
+                  </Link>
                 </>
               )}
-
-              <Link to="/about" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                About Us
-              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -222,55 +274,67 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
       {/* Mobile menu */}
       <div className={`${isOpen ? 'block' : 'hidden'} sm:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link
-            to="/"
-            className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-          >
-            Home
-          </Link>
+          {!user && (
+            <Link
+              to="/"
+              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+            >
+              Home
+            </Link>
+          )}
           <Link
             to="/browse"
             className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
           >
             Browse
           </Link>
-          {user && (
-            <Link
-              to="/dashboard"
-              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            >
-              Dashboard
-            </Link>
-          )}
-          {user && user.is_organization && (
-            <Link
-              to="/opportunities/create"
-              className="block px-3 py-2 text-base font-medium text-green-600 hover:text-green-700 hover:bg-gray-50"
-            >
-              <div className="flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Create Opportunity
-              </div>
-            </Link>
-          )}
-          {user && !user.is_organization && (
-            <Link
-              to="/friends"
-              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            >
-              Friends
-            </Link>
-          )}
-          <Link
-            to="/leaderboard"
-            className='block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-          >
-            Leaderboard
-          </Link>
+          
           {user ? (
             <>
+              <Link
+                to="/dashboard"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              >
+                Dashboard
+              </Link>
+              
+              {user.is_organization && (
+                <Link
+                  to="/opportunities/create"
+                  className="block px-3 py-2 text-base font-medium text-green-600 hover:text-green-700 hover:bg-gray-50"
+                >
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Opportunity
+                  </div>
+                </Link>
+              )}
+              
+              {!user.is_organization && (
+                <Link
+                  to="/friends"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                >
+                  Friends
+                </Link>
+              )}
+              
+              <Link
+                to="/leaderboard"
+                className='block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+              >
+                Leaderboard
+              </Link>
+              
+              <Link
+                to="/about"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              >
+                About Us
+              </Link>
+              
               <div className="px-3 py-2">
                 {user.is_organization && (
                   <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -279,6 +343,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
                 )}
                 <span className="block mt-1 text-sm font-medium text-gray-700">{user.email}</span>
               </div>
+              
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
@@ -290,8 +355,11 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
             <>
               <Link
                 to="/login"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="block px-3 py-2 text-base font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex items-center"
               >
+                <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
                 Login
               </Link>
               <div className="px-3 py-2 space-y-1">
