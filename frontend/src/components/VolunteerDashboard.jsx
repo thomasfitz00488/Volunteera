@@ -86,6 +86,7 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
         >
           Learn More
       </Link>
+      
       </div>
 
     {completeButton ? (
@@ -98,6 +99,9 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
         >
           {app.opportunity.status === 'requesting_complete' ? 'Sent Requested' : 'Complete'}
       </button>
+      <Link to={`/opportunity/${app.opportunity.id}/discussions`} className="px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">
+        Discussions
+      </Link>
     </div>
     ) : ('')}
     </div>
@@ -598,13 +602,13 @@ const VolunteerDashboard = () => {
                 </button>
               </li>
               <li className="mr-2">
-                <button 
+                {volunteer.is_user && (<button 
                   className={`inline-flex items-center justify-center p-4 rounded-t-lg border-b-2 ${activeTab === 'foryou' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
                   onClick={() => setActiveTab('foryou')}
                 >
                   <FaLightbulb className="w-4 h-4 mr-2" />
                   For you
-                </button>
+                </button>)}
               </li>
 
             </ul>
@@ -702,6 +706,10 @@ const VolunteerDashboard = () => {
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Friends</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {FRIENDS.map(friend => (
+                    <Link
+                    to={`/dashboard/volunteer/${friend.id}/`}
+                    className="block rounded-lg w-full z-10 text-left px-4 py-2"
+                    >
                     <div key={friend.id} className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 transition-all duration-300 hover:shadow-xl hover:scale-105">
                       <div className="flex items-center gap-4">
                         <div className="relative">
@@ -723,6 +731,7 @@ const VolunteerDashboard = () => {
                         </span>
                       </div>
                     </div>
+                    </Link>
                   ))}
                 </div>
               </div>
