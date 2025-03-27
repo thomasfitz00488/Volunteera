@@ -5,7 +5,7 @@ import PageTransition from '../components/PageTransition';
 import Spin from '../components/LoadingSpinner';
 import api from '../utils/api';
 import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 
 const badgeCategories = [
   { name: "Elderly Care", icon: "👵", color: "bg-amber-500", colorLight: "bg-amber-100", key: "elderly" },

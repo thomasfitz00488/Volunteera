@@ -1,7 +1,7 @@
 import React from 'react';
 import EditForm from '../components/EditForm';
 import PageTransition from '../components/PageTransition';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import api from '../utils/api';

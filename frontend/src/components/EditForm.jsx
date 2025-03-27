@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Map, AdvancedMarker, APIProvider } from '@vis.gl/react-google-maps';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import api from '../utils/api';
 import PageTransition from './PageTransition';
 import Spin from './LoadingSpinner';
