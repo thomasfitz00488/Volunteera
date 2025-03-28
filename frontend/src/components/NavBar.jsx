@@ -14,12 +14,11 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
 
   const SendNotification = ({ setNotif }) => {
     useEffect(() => {
-  
       const timer = setTimeout(() => {
         setNotif(false);
       }, 5000);
       return () => clearTimeout(timer);
-    }, []);
+    }, [notif]);
 
     return(
       <motion.div
@@ -29,7 +28,10 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
       transition={{ type: "spring", stiffness: 100 }}
       className="fixed top-13 right-5 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg"
     >
+      <Link to='/dashboard'>
       New Notification
+      </Link>
+     
     </motion.div>
     )
   }
