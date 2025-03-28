@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, redirect, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
@@ -10,6 +10,72 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
   const [showRegisterDropdown, setShowRegisterDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate()
+  const [notif, setNotif] = useState(false);
+
+  const SendNotification = ({ setNotif }) => {
+    useEffect(() => {
+  
+      const timer = setTimeout(() => {
+        setNotif(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }, []);
+
+    return(
+      <motion.div
+      initial={{ x: 300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: 300, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 100 }}
+      className="fixed top-13 right-5 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg"
+    >
+      New Notification
+    </motion.div>
+    )
+  }
+
+
+
+
+  //Web socket to check for incoming messages at any time on any page since nav bar is on all pages
+
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+
+    if (!socketRef.current || socketRef.current.readyState > 1) {
+      socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/");
+    }
+
+    const socket = socketRef.current;
+
+    socket.onopen = () => {
+      console.log("✅ WebSocket connected!");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if(data.message['to_volunteer'] === user.email){
+        setNotif(true)
+      }
+    };
+
+    socket.onerror = (error) => {
+      //console.error("❌ WebSocket error:", error);
+    };
+
+    socket.onclose = (event) => {
+      //console.warn(`⚠️ WebSocket closed! Code: ${event.code}`);
+      setTimeout(() => {
+        socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/");
+      }, 3000);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [user]);
+
 
   useEffect(() => {
     // Delay the rainbow animation to start after page load
@@ -21,9 +87,8 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
   }, []);
 
   const handleLogout = () => {
-    logout()
-    navigate('/')
-    // Optional: Add navigation to home page here
+    logout();
+    navigate('/');
   };
 
   return (
@@ -60,6 +125,9 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
                 </span>
               </Link>
             </div>
+            {notif && (
+              <SendNotification setNotif = {setNotif}/>
+            )}
 
             {/* Desktop menu */}
             <div className="hidden sm:flex sm:items-center sm:space-x-6">
@@ -239,7 +307,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
             </div>
 
             {/* Mobile menu button */}
-            <div className="sm:hidden flex items-center">
+            <div className="sm:hidden flex items-center bg-white">
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
@@ -272,7 +340,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
       </div>
 
       {/* Mobile menu */}
-      <div className={`${isOpen ? 'block' : 'hidden'} sm:hidden`}>
+      <div className={`${isOpen ? 'block' : 'hidden'} sm:hidden bg-white`}>
         <div className="pt-2 pb-3 space-y-1">
           {!user && (
             <Link
