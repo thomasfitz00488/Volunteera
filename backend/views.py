@@ -344,7 +344,6 @@ def api_volunteer_requested(request, id):
 @api_view(['GET', 'PUT'])
 def api_volunteer_detail(request, id):
     user = Volunteer.objects.get(id = id)
-    
     if request.method == 'PUT':
         message = "Succsessfully updated"
         colour = "green"

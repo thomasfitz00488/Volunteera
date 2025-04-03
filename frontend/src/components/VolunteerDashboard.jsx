@@ -339,6 +339,7 @@ const VolunteerDashboard = () => {
     try {
       const response = await api.get('/opportunities/');
       setOpportunities(response);
+            
     } catch (error) {
       console.error('Error fetching opportunities:', error);
     }
@@ -346,7 +347,7 @@ const VolunteerDashboard = () => {
 
   useEffect(() => {
     fetchOpportunities();
-  }, []);
+  }, [id]);
 
   function filterOpportunities(category) {
     let arr = [];
@@ -477,6 +478,11 @@ const VolunteerDashboard = () => {
     setActiveTab("stats")
     document.getElementById("active tab").scrollIntoView({ behavior: "smooth" });
   }
+
+
+
+
+
 
   return (
     <PageTransition>
