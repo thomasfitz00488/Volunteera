@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import PageTransition from '../components/PageTransition';
-import api from '../utils/api';
-import { useUser } from '../contexts/UserContext';
 import Spin from '../components/LoadingSpinner';
+import api from '../utils/api';
+import React, { useState, useEffect, useRef } from 'react';
+import { useUser } from '../contexts/UserContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router';
+import { FaUserPlus, FaUserCircle, FaEllipsisV } from 'react-icons/fa';
 
 const Friends = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -154,21 +156,61 @@ const acceptFriend = async (friendshipId) => {
     }
 };
 
+// Container animation variant for staggered children
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+// Individual item animation variant
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.4 }
+  }
+};
+
   return (
     <PageTransition>
-      <div className="bg-gray-50 min-h-screen pt-8 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header Section */}
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Friends</h1>
-            <p className="mt-3 text-xl text-gray-500 max-w-3xl mx-auto">
+      <div className="bg-gray-50 min-h-screen">
+        {/* Header with gradient background - similar to Leaderboard */}
+        <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-purple-500 py-12 px-4 sm:px-6 lg:px-8 shadow-md">
+          <div className="max-w-7xl mx-auto">
+            <motion.h1 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="text-4xl font-bold text-white tracking-tight text-center"
+            >
+              Friends
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-3 text-xl text-blue-100 max-w-3xl mx-auto text-center"
+            >
               Connect with other volunteers and build your community
-            </p>
+            </motion.p>
           </div>
+        </div>
 
-          {/* Tabs Navigation */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+          {/* Tabs Navigation - Styled similar to Leaderboard toggle */}
           <div className="bg-white rounded-xl shadow-sm mb-8">
-            <div className="flex flex-wrap sm:flex-nowrap border-b">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap sm:flex-nowrap border-b"
+            >
               {[
                 { id: "friends", label: "My Friends", icon: "👥" },
                 { id: "friendRequests", label: "Friend Requests", icon: "📨" },
@@ -187,30 +229,49 @@ const acceptFriend = async (friendshipId) => {
                   <span>{tab.label}</span>
                 </button>
               ))}
-            </div>
+            </motion.div>
 
-            {/* Tab Content */}
+            {/* Tab Content - Add motion animations similar to Leaderboard */}
             <div className="p-6">
               {activeTab === "friends" && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Your Friends</h2>
                   
                   {FRIENDS.length === 0 ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-lg">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-10 bg-gray-50 rounded-lg"
+                    >
                       <span className="text-5xl block mb-4">👋</span>
                       <h3 className="text-lg font-medium text-gray-900">No friends yet</h3>
                       <p className="text-gray-500 mt-2">Start connecting with other volunteers</p>
                       <button 
                         onClick={() => setActiveTab("search")}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition shadow-sm"
                       >
                         Find Friends
                       </button>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <motion.div 
+                      variants={container}
+                      initial="hidden"
+                      animate="show"
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    >
                       {FRIENDS.map((friend) => (
-                        <div key={friend.id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden">
+                        <motion.div
+                          key={friend.id}
+                          variants={item}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="bg-white border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
+                        >
                           <div className="p-5">
                             <div className="flex items-center space-x-4">
                               <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl font-bold">
@@ -224,18 +285,21 @@ const acceptFriend = async (friendshipId) => {
                               <div className="relative">
                                 <button
                                   onClick={() => setIsOpen(isOpen === friend.id ? null : friend.id)}
-                                  className="p-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                  className="p-2 text-gray-400 hover:text-gray-600 focus:outline-none rounded-full hover:bg-gray-100 transition"
                                 >
-                                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                  </svg>
+                                  <FaEllipsisV />
                                 </button>
                                 
                                 {isOpen === friend.id && (
-                                  <div className="absolute right-0 z-10 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                                  <motion.div 
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="absolute right-0 z-10 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                                  >
                                     <Link
                                       to={`/dashboard/volunteer/${friend.id}/`}
-                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
                                     >
                                       View Profile
                                     </Link>
@@ -245,7 +309,7 @@ const acceptFriend = async (friendshipId) => {
                                     >
                                       Remove Friend
                                     </button>
-                                  </div>
+                                  </motion.div>
                                 )}
                               </div>
                             </div>
@@ -258,27 +322,45 @@ const acceptFriend = async (friendshipId) => {
                               View volunteer details →
                             </Link>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               )}
               
               {activeTab === "friendRequests" && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Pending Friend Requests</h2>
                   
                   {FriendRequests.length === 0 ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-lg">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-10 bg-gray-50 rounded-lg"
+                    >
                       <span className="text-5xl block mb-4">📭</span>
                       <h3 className="text-lg font-medium text-gray-900">No friend requests</h3>
                       <p className="text-gray-500 mt-2">You don't have any pending friend requests</p>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <div className="space-y-4">
+                    <motion.div 
+                      variants={container}
+                      initial="hidden"
+                      animate="show"
+                      className="space-y-4"
+                    >
                       {FriendRequests.map((friend) => (
-                        <div key={friend.id} className="bg-white border rounded-lg shadow-sm p-4">
+                        <motion.div 
+                          key={friend.id} 
+                          variants={item}
+                          whileHover={{ scale: 1.02 }}
+                          className="bg-white border rounded-lg shadow-sm p-4"
+                        >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
@@ -292,45 +374,63 @@ const acceptFriend = async (friendshipId) => {
                             <div className="flex items-center space-x-2">
                               <button 
                                 onClick={() => deleteFriend(friend.id)} 
-                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+                                className="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
                               >
                                 Decline
                               </button>
                               <button 
                                 onClick={() => acceptFriend(friend.id)} 
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-sm transition"
                               >
                                 Accept
                               </button>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               )}
               
               {activeTab === "sentRequests" && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Sent Friend Requests</h2>
                   
                   {sentRequests.length === 0 ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-lg">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-10 bg-gray-50 rounded-lg"
+                    >
                       <span className="text-5xl block mb-4">📤</span>
                       <h3 className="text-lg font-medium text-gray-900">No sent requests</h3>
                       <p className="text-gray-500 mt-2">You haven't sent any friend requests yet</p>
                       <button 
                         onClick={() => setActiveTab("search")}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-full shadow-sm hover:bg-blue-700 transition"
                       >
                         Find Friends
                       </button>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <div className="space-y-4">
+                    <motion.div 
+                      variants={container}
+                      initial="hidden"
+                      animate="show"
+                      className="space-y-4"
+                    >
                       {sentRequests.map((friend) => (
-                        <div key={friend.id} className="bg-white border rounded-lg shadow-sm p-4">
+                        <motion.div 
+                          key={friend.id} 
+                          variants={item}
+                          whileHover={{ scale: 1.02 }}
+                          className="bg-white border rounded-lg shadow-sm p-4"
+                        >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
@@ -343,20 +443,24 @@ const acceptFriend = async (friendshipId) => {
                             </div>
                             <button 
                               onClick={() => deleteFriend(friend.id)} 
-                              className="px-4 py-2 border border-gray-300 text-red-600 rounded-md hover:bg-red-50 transition"
+                              className="px-4 py-2 border border-gray-300 text-red-600 rounded-full hover:bg-red-50 transition"
                             >
                               Cancel Request
                             </button>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               )}
               
               {activeTab === "search" && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Find New Friends</h2>
                   
                   <div className="relative mb-6">
@@ -379,15 +483,30 @@ const acceptFriend = async (friendshipId) => {
                       <Spin />
                     </div>
                   ) : volunteers.length === 0 ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-lg">
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-10 bg-gray-50 rounded-lg"
+                    >
                       <span className="text-5xl block mb-4">🔍</span>
                       <h3 className="text-lg font-medium text-gray-900">No volunteers found</h3>
                       <p className="text-gray-500 mt-2">Try adjusting your search</p>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <motion.div 
+                      variants={container}
+                      initial="hidden"
+                      animate="show"
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
                       {volunteers.map((vol) => (
-                        <div className="user" key={vol.id}>
+                        <motion.div 
+                          className="user" 
+                          key={vol.id}
+                          variants={item}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
                           <div className="bg-white border rounded-lg shadow-sm hover:shadow transition overflow-hidden">
                             <div className="p-5">
                               <div className="flex items-center space-x-4">
@@ -401,42 +520,48 @@ const acceptFriend = async (friendshipId) => {
                               <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                                 <button 
                                   onClick={() => addFriend(vol.id)} 
-                                  className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                                  className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-sm transition"
                                 >
-                                  <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                  </svg>
+                                  <FaUserPlus className="mr-1" size={14} />
                                   Add Friend
                                 </button>
                                 <Link
                                   to={`/dashboard/volunteer/${vol.id}/`}
-                                  className="flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
+                                  className="flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition"
                                 >
+                                  <FaUserCircle className="mr-1" size={14} />
                                   View Profile
                                 </Link>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               )}
             </div>
           </div>
           
-          {/* Success Message Toast */}
-          {message && (
-            <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg">
-              <div className="flex items-center">
-                <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {message}
-              </div>
-            </div>
-          )}
+          {/* Notification Toast - Make more like Leaderboard */}
+          <AnimatePresence>
+            {message && (
+              <motion.div 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg"
+              >
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {message}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </PageTransition>
