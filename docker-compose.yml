@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./volunteermatch:/app/volunteermatch
+      - ./backend:/app/backend  
+    expose:
+      - 8000
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=volunteermatch.settings
+      - USE_INMEMORY_CHANNELS=0
+    command: daphne -b 0.0.0.0 -p 8000 volunteermatch.asgi:application
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - ./frontend:/app/frontend
+
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:alpine
