@@ -60,7 +60,7 @@ const OpportunityDetails = () => {
     }
 
     if (index !== -1) {
-      const updatedDates = {...prevDates};
+      const updatedDates = [...prevDates];
       updatedDates.splice(index, 1);
       return updatedDates;
     } else {
@@ -90,6 +90,16 @@ const OpportunityDetails = () => {
       console.error('Error applying:', error);
     }
   };
+
+  const isDateAvailible = (date) => {
+    const startObject = new Date(opportunity.start_date)
+    const endObject = new Date(opportunity.end_date)
+    const dateTime = date.getTime();
+    const startTime = startObject.getTime();
+    const endTime = endObject.getTime();
+
+    return dateTime >= startTime && dateTime <= endTime
+  }
 
   if (!opportunity) return null;
 
@@ -206,13 +216,15 @@ const OpportunityDetails = () => {
                     
                     <Calendar onClickDay={handleDateClick} tileClassName={({ date }) =>
                   selectedDates.some((d) => d.getTime() === date.getTime()) ? "highlight" : null
-                  } />
+                  } 
+                  tileDisabled={({ date }) => !isDateAvailible(date)}
+                  />
                     
                     <p className="font-semibold mt-2">Selected Dates:</p>
                     {selectedDates.map((d, index) => (
                       <p key={index} className="ml-4">{d.toDateString()}</p>
                     ))}
-        
+
                     <div className="flex justify-end space-x-4 mt-4">
                       <button 
                         onClick={() => setShowModal(false)} 
