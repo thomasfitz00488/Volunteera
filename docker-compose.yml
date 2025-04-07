@@ -15,6 +15,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=volunteermatch.settings
       - USE_INMEMORY_CHANNELS=0
+      - DJANGO_ALLOWED_HOSTS=10.2.8.17
     command: daphne -b 0.0.0.0 -p 8000 volunteermatch.asgi:application
 
   frontend:
