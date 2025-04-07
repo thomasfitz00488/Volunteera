@@ -1,0 +1,15 @@
+FROM node:20 AS build
+
+WORKDIR /frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
+
+COPY frontend/ .
+RUN npm run build
+
+# Serve static files with nginx
+FROM nginx:alpine
+
+COPY --from=build /frontend/build/client /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf

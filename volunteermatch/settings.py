@@ -100,15 +100,22 @@ INSTALLED_APPS = [
 
 
 ]
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
+USE_INMEMORY = os.getenv("USE_INMEMORY_CHANNELS", "1") == "1"
+if USE_INMEMORY:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        }
+    }
 
 SITE_ID = 1
 
