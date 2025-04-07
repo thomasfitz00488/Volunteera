@@ -46,7 +46,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
   useEffect(() => {
 
     if (!socketRef.current || socketRef.current.readyState > 1) {
-      socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/");
+      socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/"); // opens the connection
     }
 
     const socket = socketRef.current;
@@ -58,7 +58,7 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if(data.message['to_volunteer'] === user.email){
-        setNotif(true)
+        setNotif(true) 
       }
     };
 
