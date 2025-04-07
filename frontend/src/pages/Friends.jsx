@@ -179,7 +179,8 @@ const item = {
 
   return (
     <PageTransition>
-      <div className="bg-gray-50 min-h-screen">
+      {!isLoading ? (
+        <div className="bg-gray-50 min-h-screen">
         {/* Header with gradient background - similar to Leaderboard */}
         <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-purple-500 py-12 px-4 sm:px-6 lg:px-8 shadow-md">
           <div className="max-w-7xl mx-auto">
@@ -564,6 +565,12 @@ const item = {
           </AnimatePresence>
         </div>
       </div>
+      ) : (
+        <div className="flex justify-center py-12">
+        <Spin />
+      </div>
+    )}
+      
     </PageTransition>
   );
 };

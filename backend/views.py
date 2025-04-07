@@ -229,7 +229,7 @@ def delete_friendship(request, friend_id, volunteer_id):
 @api_view(["POST"])
 def create_friendship(request, friend_id, volunteer_id):
     if request.method == "POST":
-        if volunteer_id != request.user.id:
+        if volunteer_id != Volunteer.objects.get(user = request.user).id:
             return Response({'error': 'Only the user of the friend can remove friends'},
                        status=status.HTTP_403_FORBIDDEN)
         u = Volunteer.objects.get(id = volunteer_id)
