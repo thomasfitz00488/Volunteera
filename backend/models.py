@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import os
 import json
+from django.utils import timezone
+
 from django.core.exceptions import ValidationError
 
 class User(AbstractUser):
