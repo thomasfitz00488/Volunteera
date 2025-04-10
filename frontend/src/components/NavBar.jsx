@@ -63,11 +63,11 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
     };
 
     socket.onerror = (error) => {
-      //console.error("❌ WebSocket error:", error);
+      console.error("❌ WebSocket error:", error);
     };
 
     socket.onclose = (event) => {
-      //console.warn(`⚠️ WebSocket closed! Code: ${event.code}`);
+      console.warn(`⚠️ WebSocket closed! Code: ${event.code}`);
       setTimeout(() => {
         socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/");
       }, 3000);

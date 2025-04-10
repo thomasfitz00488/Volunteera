@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useNavigate } from 'react-router';
 import PageTransition from '../components/PageTransition';
 import api from '../utils/api';
 import { format } from 'date-fns';
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { Map, AdvancedMarker, APIProvider } from '@vis.gl/react-google-maps';
+import { useUser } from '../contexts/UserContext';
+
 
 const OpportunityDetails = () => {
   const { id } = useParams();
@@ -13,6 +15,8 @@ const OpportunityDetails = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDates, setSelectedDates] = useState([])
   const [marker, setMarker] = useState(null);
+  const { user } = useUser();
+  const navigate = useNavigate()
   
 
 
@@ -106,7 +110,6 @@ const OpportunityDetails = () => {
   }
 
   if (!opportunity) return null;
-
   return (
     <PageTransition>
       <div className="min-h-screen bg-white">
@@ -205,7 +208,7 @@ const OpportunityDetails = () => {
                 {/* Apply Button */}
                 <button
                   className="w-full px-6 py-3 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
-                  onClick={() => setShowModal(true)}
+                  onClick={user ? (() => setShowModal(true)) : (() => navigate('/login'))}
                   disabled={opportunity.has_applied}
                 >
                   {opportunity.has_applied ? 'Applied' : 'Apply Now'}
