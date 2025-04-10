@@ -257,6 +257,7 @@ const OpportunityDetails = () => {
               
             </div>
           </div>
+          <div className="mt-2 h-[400px] w-full">
           <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <Map
                 defaultCenter={marker}
@@ -271,6 +272,7 @@ const OpportunityDetails = () => {
                 )}
             </Map>
           </APIProvider>
+          </div>
         </div>
       </div>
     </PageTransition>
