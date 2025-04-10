@@ -5,11 +5,6 @@ import api from '../utils/api';
 import PageTransition from './PageTransition';
 import Spin from './LoadingSpinner';
 
-const defaultCenter = {
-  lat: 51.5074, // London coordinates as default
-  lng: -0.1278
-};
-
 const EditForm = ({ currentData }) => {
     const [formData, setFormData] = useState({});
     const [isLoading, setLoading] = useState(true);
@@ -227,7 +222,7 @@ const EditForm = ({ currentData }) => {
             <div className="mt-2 h-[400px] w-full">
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
-                    defaultCenter={defaultCenter}
+                    defaultCenter={marker}
                     defaultZoom={13}
                     reuseMaps={true}
                     onClick={(e) => handleMapClick(e.detail.latLng)}

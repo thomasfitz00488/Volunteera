@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router';
 import PageTransition from '../components/PageTransition';
-import { useUser } from '../contexts/UserContext';
 import api from '../utils/api';
 import { format } from 'date-fns';
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-
+import { Map, AdvancedMarker, APIProvider } from '@vis.gl/react-google-maps';
 
 const OpportunityDetails = () => {
   const { id } = useParams();
   const [opportunity, setOpportunity] = useState(null);
-  const mapRef = useRef(null);
-  const { user } = useUser();
   const [showModal, setShowModal] = useState(false);
   const [selectedDates, setSelectedDates] = useState([])
+  const [marker, setMarker] = useState(null);
+  
 
 
   useEffect(() => {
@@ -25,6 +24,11 @@ const OpportunityDetails = () => {
       });
         setOpportunity(response);
         initMap(response);
+        const x = {
+          lat: response.latitude,
+          lng: response.longitude
+        };
+        setMarker({ x });
         console.log(response)
       } catch (error) {
         console.error('Error fetching opportunity:', error);
@@ -250,9 +254,23 @@ const OpportunityDetails = () => {
                   Share Opportunity
                 </Link>
               </div>
+              
             </div>
           </div>
-          <div ref={mapRef} className="w-full h-[300px] rounded-lg overflow-hidden" />
+          <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+            <Map
+                defaultCenter={marker}
+                defaultZoom={13}
+                reuseMaps={true}
+                mapId="107f378fc363e5a7"
+            >
+                {marker && (
+                <AdvancedMarker
+                    position={marker}
+                />
+                )}
+            </Map>
+          </APIProvider>
         </div>
       </div>
     </PageTransition>
