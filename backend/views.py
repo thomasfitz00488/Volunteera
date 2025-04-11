@@ -1030,8 +1030,6 @@ def api_apply_opportunity(request, id):
     global stringOfDates
     stringOfDates = ", ".join(request.data['dates'])
 
-    print(stringOfDates)
-
     if request.method == "POST":
         status = "pending"
         user = request.user
@@ -1047,7 +1045,7 @@ def api_apply_opportunity(request, id):
         Application.objects.create(dates_worked = stringOfDates, volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
         opportunity.current_volunteers_count += 1
         opportunity.save()
-        Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization, message = message)
+        Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization.name, message = message)
     return Response("Applied successfully")
 
 def complete_opportunity(vol, categories, points):
