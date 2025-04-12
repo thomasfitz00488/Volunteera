@@ -48,7 +48,7 @@ const OpportunityCard = ({ opportunity }) => {
                 </h3>
 
                 <p className="text-sm text-gray-500">
-                  {opportunity.organization.name}
+                  {opportunity.organization.name} {opportunity.organization.approved && ("✔️")}
                 </p>
               </div>
               <h4 className='text-sm text-gray-500'>
@@ -124,6 +124,7 @@ const BrowseOpportunities = () => {
         }
     });
 }
+
 
   useEffect(() => {
     fetchOpportunities();

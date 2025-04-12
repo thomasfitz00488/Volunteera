@@ -109,6 +109,17 @@ const OpportunityDetails = () => {
     return dateTime >= startTime && dateTime <= endTime
   }
 
+  const copyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl)
+      .then(() => {
+        alert("URL copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  };
+
   if (!opportunity) return null;
   return (
     <PageTransition>
@@ -137,6 +148,7 @@ const OpportunityDetails = () => {
                     </span>
                     <span className="text-gray-500">•</span>
                     <span className="text-gray-500">{opportunity.organization?.name}</span>
+                    <span className="text-gray-500">{opportunity.organization.approved && ("✔️")}</span>
                   </div>
                 </div>
 
@@ -247,15 +259,19 @@ const OpportunityDetails = () => {
                   </div>
                 </div>
               )}
-
-
-                {/* Share Button */}
-                <Link to={`/opportunity/${id}/discussions`} className="w-full px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex w-full gap-4">
+                <Link 
+                  to={`/opportunity/${id}/discussions`} 
+                  className="w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors text-center"
+                >
                   Discussions
                 </Link>
-                <Link className="w-full px-6 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick = {copyLink}className="w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
                   Share Opportunity
-                </Link>
+                </button>
+              </div>
               </div>
               
             </div>
