@@ -246,7 +246,7 @@ console.log(formData)
                     <input
                         id="display_name"
                         type="display_name"
-                        value={vol.display_name}
+                        value={formData.display_name}
                         required
                         className="mt-1 ml-5 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         onChange={(e) => setFormData({...formData, display_name: e.target.value})}
