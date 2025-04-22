@@ -319,10 +319,8 @@ const VolunteerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [FRIENDS, setFriends] = useState([]);
   const [MESSAGES, setMessages] = useState([]);
-  const [INTEREST, setInterest] = useState([]);
   const [pending, setPending] = useState([]);
   const [accepted, setAccepted] = useState([]);
-  const [categories, setCategories] = useState([]);
   const { user } = useUser();
   const {id} = useParams();
   const location = useLocation();
@@ -347,7 +345,7 @@ const VolunteerDashboard = () => {
 
   useEffect(() => {
     fetchOpportunities();
-  }, [id]);
+  }, []);
 
   function filterOpportunities(category) {
     let arr = [];
@@ -416,7 +414,7 @@ const VolunteerDashboard = () => {
       setMessages(response2.messages);
       setPending(response2.pending_applications);
       setAccepted(response2.accepted_applications);
-      setInterest(response2.interests);
+
       setFilteredOpportunities([])
         Object.entries(interestPercentages).forEach(([category, percentage]) => {
           OppMultiplier(category, percentage);
