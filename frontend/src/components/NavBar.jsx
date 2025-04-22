@@ -45,8 +45,14 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
 
   useEffect(() => {
 
+    if(!user){
+      return;
+    }
+
     if (!socketRef.current || socketRef.current.readyState > 1) {
-      socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/"); // opens the connection
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      const wsHost = window.location.hostname;
+      socketRef.current = new WebSocket(`${protocol}://${wsHost}:8000/ws/volunteers/`);
     }
 
     const socket = socketRef.current;

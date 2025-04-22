@@ -48,7 +48,7 @@ const OpportunityCard = ({ opportunity }) => {
                 </h3>
 
                 <p className="text-sm text-gray-500">
-                  {opportunity.organization.name}
+                  {opportunity.organization.name} {opportunity.organization.approved && ("✔️")}
                 </p>
               </div>
               <h4 className='text-sm text-gray-500'>
@@ -111,7 +111,6 @@ const BrowseOpportunities = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [sortedOpportunities, setSortedOpportunities] = useState([...opportunities]);
-  console.log(opportunities)
   function searchOpportunity() {
     let input = document.getElementById("searchBar").value.toLowerCase();
     let opportunities = document.querySelectorAll(".opportunity");
@@ -124,6 +123,7 @@ const BrowseOpportunities = () => {
         }
     });
 }
+
 
   useEffect(() => {
     fetchOpportunities();

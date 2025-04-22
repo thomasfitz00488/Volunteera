@@ -27,7 +27,7 @@ const steps = [
   {
     id: 'interests',
     title: 'Your Interests',
-    description: 'What causes are you passionate about?',
+    description: 'Which causes are you passionate about?',
     icon: '❤️'
   },
   {

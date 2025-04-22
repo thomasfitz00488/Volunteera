@@ -827,6 +827,7 @@ def api_opportunity_list(request):
         'organization': {
             'name': opp.organization.name,
             'logo': opp.organization.logo.url if opp.organization.logo else None,
+            'approved': opp.organization.approved,
         },
         'location_name': opp.location_name,
         'latitude': opp.latitude,
@@ -891,6 +892,7 @@ def api_opportunity_detail(request, pk):
         'organization': {
             'name': opportunity.organization.name,
             'logo': opportunity.organization.logo.url if opportunity.organization.logo else None,
+            'approved': opportunity.organization.approved,
         },
         'location_name': opportunity.location_name,
         'latitude': opportunity.latitude,

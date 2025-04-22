@@ -83,7 +83,7 @@ const EditForm = ({ currentData }) => {
       }
     
   };
-  console.log(import.meta.env);
+
   return (
     <PageTransition>
         {isLoading ? (
