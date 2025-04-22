@@ -72,8 +72,6 @@ const OpportunityForm = () => {
     try {
       // Add debug logging
       const user = JSON.parse(localStorage.getItem('user'));
-      console.log('Current user:', user);
-      console.log('Form data:', formData);
 
       const response = await api.post('/opportunities/create/', formData);
       if (response.status === 201) {

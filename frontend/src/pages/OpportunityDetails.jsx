@@ -33,7 +33,6 @@ const OpportunityDetails = () => {
           lng: response.longitude
         };
         setMarker({ x });
-        console.log(response)
       } catch (error) {
         console.error('Error fetching opportunity:', error);
       }

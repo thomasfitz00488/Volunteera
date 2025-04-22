@@ -111,7 +111,6 @@ const BrowseOpportunities = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [sortedOpportunities, setSortedOpportunities] = useState([...opportunities]);
-  console.log(opportunities)
   function searchOpportunity() {
     let input = document.getElementById("searchBar").value.toLowerCase();
     let opportunities = document.querySelectorAll(".opportunity");

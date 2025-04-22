@@ -122,7 +122,6 @@ const Friends = () => {
         fetchUser();
 
         setMessage(response.message);
-        console.log(response.message)
 
     } catch (error) {
         console.error("Error deleting friendship:", error);

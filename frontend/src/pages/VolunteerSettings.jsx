@@ -119,7 +119,6 @@ const VolunteerSettings = () => {
         setActiveTab(pr);
         setAction("");
       }
-console.log(formData)
   return (
     <PageTransition>
   {isLoading ? (
