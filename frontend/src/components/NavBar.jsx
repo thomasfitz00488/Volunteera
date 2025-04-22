@@ -44,41 +44,40 @@ const NavBar = ({ isScrolled = false, gradientStyle = {} }) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-
-    if(!user){
-      return;
-    }
-
+    if (!user) return;
+  
     if (!socketRef.current || socketRef.current.readyState > 1) {
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
       const wsHost = window.location.hostname;
       socketRef.current = new WebSocket(`${protocol}://${wsHost}:8000/ws/volunteers/`);
     }
-
+  
     const socket = socketRef.current;
-
+  
     socket.onopen = () => {
       console.log("✅ WebSocket connected!");
     };
-
+  
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if(data.message['to_volunteer'] === user.email){
-        setNotif(true) 
+      if (data.message?.to_volunteer === user.email) {
+        setNotif(true);
       }
     };
-
+  
     socket.onerror = (error) => {
       console.error("❌ WebSocket error:", error);
     };
-
+  
     socket.onclose = (event) => {
       console.warn(`⚠️ WebSocket closed! Code: ${event.code}`);
       setTimeout(() => {
-        socketRef.current = new WebSocket("ws://127.0.0.1:8000/ws/volunteers/");
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsHost = window.location.hostname;
+        socketRef.current = new WebSocket(`${protocol}://${wsHost}:8000/ws/volunteers/`);
       }, 3000);
     };
-
+  
     return () => {
       socket.close();
     };
