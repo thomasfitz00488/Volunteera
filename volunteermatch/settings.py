@@ -56,7 +56,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://10.2.8.17",
     "http://10.2.8.17:8000",
-    "http://10.2.8.17:3000"
+    "http://10.2.8.17:5000"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
