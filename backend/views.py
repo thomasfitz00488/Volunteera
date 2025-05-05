@@ -31,7 +31,7 @@ from geopy.exc import GeocoderTimedOut
 from geopy.distance import geodesic
 
 from django.utils import timezone
-
+import resend
 import random
 import string
 from django.core.mail import send_mail
@@ -852,12 +852,17 @@ def register_organization(request):
         
         # Send verification email
         subject = 'Verify your Volunteera organization account'
-        message = (f'Thank you for registering with Volunteera!\n\n'
-                  f'Your verification code is: {otp_code}\n\n'
-                  f'Please enter this code in the verification page to activate your account.\n'
-                  f'This code will expire in 24 hours.')
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-
+        resend.Emails.send({
+            "from": "verify@volunteermatch.dylanfarrar.com",  # Must be verified in Resend
+            "to": [email],
+            "subject": subject,
+            "html": f"""
+                <p>Thank you for registering with Volunteera!</p>
+                <p>Your verification code is: <strong>{otp_code}</strong></p>
+                <p>Please enter this code in the verification page to activate your account.</p>
+                <p>This code will expire in 24 hours.</p>
+            """,
+        })
         # Generate tokens
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -911,66 +916,6 @@ def verify_organization(request):
     
     except Exception as e:
         return Response({'error': str(e)}, status=400)
-
-@api_view(['POST'])
-def register_organization(request):
-    try:
-        # Extract form data
-        email = request.data.get('email')
-        username = request.data.get('username')
-        password = request.data.get('password')
-        password2 = request.data.get('password2')
-        name = request.data.get('name')
-        charity_number = request.data.get('charity_number')
-        description = request.data.get('description')
-        logo = request.FILES.get('logo')
-        selected_charity_data = request.data.get('selected_charity_data')
-
-        if not all([email, username, password, password2, name, description]):
-            return Response({
-                'error': 'All required fields must be provided'
-            }, status=400)
-
-        if password != password2:
-            return Response({
-                'error': 'Passwords do not match'
-            }, status=400)
-
-        # Create user
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
-        )
-
-        # Create organization
-        organization = Organization.objects.create(
-            user=user,
-            name=name,
-            charity_number=charity_number,
-            description=description,
-            logo=logo,
-            approved=False  # Organizations need admin approval
-        )
-
-        # Generate tokens
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user': {
-                'email': user.email,
-                'is_organization': True
-            }
-        })
-
-    except Exception as e:
-        # If user was created but organization creation failed, delete the user
-        if 'user' in locals():
-            user.delete()
-        return Response({
-            'error': str(e)
-        }, status=400)
 
 @api_view(['GET', 'POST'])
 def api_opportunity_list(request):
