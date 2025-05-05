@@ -21,7 +21,7 @@ const MessageCard = ({message}) => {
 
   if (!isVisible) return null
   return(
-  <div key={message.id} className="p-6 bg-white rounded-xl shadow-lg relative">
+  <div key={message.id} className="p-6 mb-3 bg-yellow-50 rounded-xl shadow-lg relative">
     <div className="flex items-start space-x-4">
       <div className="w-14 h-14 bg-yellow-300 text-white rounded-full flex items-center justify-center text-2xl font-semibold">
         <span role="img" aria-label="star">⭐</span>
@@ -61,7 +61,7 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
   }
 
   return(
-    <div className="p-5 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 relative">
+    <div className="p-5 mb-3 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 relative hover:bg-blue-50">
     {/* Date Applied in Top Right */}
     <p className="absolute top-2 right-4 text-xs text-gray-500">
       Applied: {format(new Date(app.date_applied), "MMM dd, yyyy")}
@@ -111,7 +111,7 @@ const OpportunityCard = ({app, completeButton, setUpdate, update}) => {
 const ForYouCard = ({ opportunity }) => {
   return (
     <div className='opportunity'>
-      <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="bg-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
         <div className="p-6">
           {/* Header section */}
           <div className="flex flex-col gap-4">
@@ -369,8 +369,8 @@ const VolunteerDashboard = () => {
   }
 
   const visibleMessages = showAll ? MESSAGES : MESSAGES.slice(0, 3);
-  const visible_pending = showAllPending ? pending : pending.slice(0, 1);
-  const visible_accepted = showAllAccepted ? accepted : accepted.slice(0, 1);
+  const visible_pending = showAllPending ? pending : pending.slice(0, 2);
+  const visible_accepted = showAllAccepted ? accepted : accepted.slice(0, 2);
   let user_id = 0
 
 
@@ -490,7 +490,7 @@ const VolunteerDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Overview */}
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg p-6 mb-8">
+          <div className="bg-gradient-to-r from-[#A85AC8] to-blue-600 rounded-xl shadow-lg p-6 mb-8">
             <div className="flex items-center gap-6">
               {user && user.avatar_url ? (
                 <img
@@ -533,7 +533,7 @@ const VolunteerDashboard = () => {
             ref={statsRef}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
           >
-            <div className={`bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl shadow-lg transform transition-all duration-500 ${
+            <div className={`bg-[#9DC8DB] p-6 rounded-xl shadow-lg transform transition-all duration-500 ${
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}>
               <h3 className="text-lg font-medium text-white/90 mb-2">Total Hours</h3>
@@ -543,7 +543,7 @@ const VolunteerDashboard = () => {
               <p className="text-sm text-white/80 mt-1">Hours volunteered</p>
             </div>
 
-            <div className={`bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-100 ${
+            <div className={`bg-[#8FB78F] p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-100 ${
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}>
               <h3 className="text-lg font-medium text-white/90 mb-2">Completions</h3>
@@ -553,7 +553,7 @@ const VolunteerDashboard = () => {
               <p className="text-sm text-white/80 mt-1">Opportunities Done</p>
             </div>
 
-            <div className={`bg-gradient-to-br from-violet-500 to-purple-600 p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-200 ${
+            <div className={`bg-[#FF9B57] p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-200 ${
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}>
               <h3 className="text-lg font-medium text-white/90 mb-2">Impact</h3>
@@ -563,7 +563,7 @@ const VolunteerDashboard = () => {
               <p className="text-sm text-white/80 mt-1">Points</p>
             </div>
 
-            <div className={`bg-gradient-to-br from-amber-500 to-yellow-600 p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-300 ${
+            <div className={`bg-[#F2799B] p-6 rounded-xl shadow-lg transform transition-all duration-500 delay-300 ${
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}>
               <h3 className="text-lg font-medium text-white/90 mb-2">Last Completion</h3>
@@ -640,17 +640,17 @@ const VolunteerDashboard = () => {
             </div>
           </div>
         )}
-        {pending.length > 1 && (
+        {pending.length > 2 && (
         <button
           onClick={() => setShowAllPending(!showAllPending)}
-          className="w-full py-1 bg-gray-300 hover:bg-gray-400 text-white px-4 rounded-full transition-all relative"
+          className="w-full py-1 bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-full transition-all relative"
         >
           {showAllPending ? "Show Less" : "Show More"}
         </button>
       )}
 
       {/* Applications in Progress Tab */}
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Opportunities in Progress</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">Opportunities in Progress</h2>
           {accepted.length === 0 ? (
             <div className="col-span-2 text-center py-12">
                     <p className="text-gray-500">No opportunities in progress</p>
@@ -666,17 +666,17 @@ const VolunteerDashboard = () => {
             </div>
           </div>
         )}
-        {accepted.length > 1 && (
+        {accepted.length > 2 && (
         <button
           onClick={() => setShowAllAccepted(!showAllAccepted)}
-          className="w-full py-1 bg-gray-300 hover:bg-gray-400 text-white px-4 rounded-full transition-all relative"
+          className="w-full py-1 bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-full transition-all relative"
         >
           {showAllAccepted ? "Show Less" : "Show More"}
         </button>
       )}
 
           {/* Messages */}
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Messages</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">Messages</h2>
           {MESSAGES.length === 0 ? (
             <div className="col-span-2 text-center py-12">
                     <p className="text-gray-500">No messages</p>
@@ -695,7 +695,7 @@ const VolunteerDashboard = () => {
         {MESSAGES.length > 3 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="w-full py-1 bg-gray-300 hover:bg-gray-400 text-white px-4 rounded-full transition-all relative"
+          className="w-full py-1 bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-full transition-all relative"
         >
           {showAll ? "Show Less" : "Show More"}
         </button>

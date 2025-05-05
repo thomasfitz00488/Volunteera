@@ -181,7 +181,7 @@ const item = {
       {!isLoading ? (
         <div className="bg-gray-50 min-h-screen">
         {/* Header with gradient background - similar to Leaderboard */}
-        <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-purple-500 py-12 px-4 sm:px-6 lg:px-8 shadow-md">
+        <div className="bg-gradient-to-r from-[#A85AC8] to-blue-600 py-12 px-4 sm:px-6 lg:px-8 shadow-md">
           <div className="max-w-7xl mx-auto">
             <motion.h1 
               initial={{ y: -20, opacity: 0 }}

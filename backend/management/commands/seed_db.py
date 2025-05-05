@@ -1310,6 +1310,11 @@ class Command(BaseCommand):
                 'description': 'Helping the elderly people to bring kindness into the world'
             },
             {
+                'name': 'Retail',
+                'category': community,
+                'description': 'Helping retail shops sell items and manage their stock'
+            },
+            {
                 'name': 'Animals',
                 'category': animals,
                 'description': 'Caring for and protecting animals in need'

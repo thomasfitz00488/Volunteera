@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import api from '../utils/api';
 import Spin from '../components/LoadingSpinner';
 import { motion } from 'framer-motion';
+import {HASUPPERCASE, HASSPECIALCHAR, HASNUMBER, MINLENGTH} from '../components/constants.js'
 
 const character = {
     'Animal': '🐶',
@@ -27,6 +28,7 @@ const VolunteerSettings = () => {
   const [all_interests, setInterests] = useState([]);
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('profile');
+  const [message, setMessage] = useState("");
   
   const [formData, setFormData] = useState({
       f_name: '',
@@ -94,6 +96,11 @@ const VolunteerSettings = () => {
 
     async function save(){
         try {
+          if(formData.password != ''){
+            if (message != "Password is strong."){
+              return;
+            }
+          }
           const response = await fetch(`/api/volunteer/${id}/`, {
             method: 'PUT',
             headers: {
@@ -119,6 +126,26 @@ const VolunteerSettings = () => {
         setActiveTab(pr);
         setAction("");
       }
+
+      const validatePassword = (password) => {
+        const minLength = HASUPPERCASE;
+        const hasNumber = HASNUMBER;
+        const hasSpecialChar = HASSPECIALCHAR;
+        const hasUppercase = HASUPPERCASE;
+    
+        if (password.length < minLength) {
+          setMessage("Password must be at least 8 characters.");
+        } else if (!hasNumber.test(password)) {
+          setMessage("Password must include a number.");
+        } else if (!hasSpecialChar.test(password)) {
+          setMessage("Password must include a special character.");
+        } else if (!hasUppercase.test(password)) {
+          setMessage("Password must include an uppercase letter.");
+        } else {
+          setMessage("Password is strong.");
+        }
+      };
+
   return (
     <PageTransition>
   {isLoading ? (
@@ -287,9 +314,15 @@ const VolunteerSettings = () => {
                         type="password"
                         required
                         className="mt-1 ml-5 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        onChange={(e) => setFormData({...formData, passwordNew: e.target.value})}
+                        onChange={(e) => {
+                          const newPassword = e.target.value;
+                          setFormData({ ...formData, passwordNew: newPassword });
+                          validatePassword(newPassword);
+                        }}
                     />
                     </div>
+
+                    <p id="message" className="text-sm mt-1 text-black font-bold">{message}</p>
 
                     <div>
                     <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700 mt-5 ml-5">

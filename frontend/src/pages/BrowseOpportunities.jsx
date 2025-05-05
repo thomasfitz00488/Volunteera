@@ -35,7 +35,7 @@ const VerificationBadge = ({ type }) => {
 const OpportunityCard = ({ opportunity }) => {
   return (
     <div className='opportunity'>
-      <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
         <div className="p-6">
           {/* Header section */}
           <div className="flex flex-col gap-4">
@@ -234,7 +234,7 @@ const BrowseOpportunities = () => {
       <div className="min-h-screen bg-white -mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 mt-8 text-center">
             <h1 className="text-3xl font-semibold text-gray-900">Discover Opportunities</h1>
             <p className="mt-2 text-gray-600">Explore volunteer opportunities near you</p>
           </div>
@@ -246,7 +246,7 @@ const BrowseOpportunities = () => {
                 {/* Categories Section */}
                 <div>
                   <h2 className="text-lg font-medium text-gray-900 mb-4">Categories</h2>
-                  <div className="space-y-2">
+                  <div className="space-y-2 bg-blue-100 rounded-xl">
                     {isLoading ? (
                     <div className="col-span-2 text-center py-12">
                       <Spin/>
@@ -272,8 +272,9 @@ const BrowseOpportunities = () => {
                 </div>
 
                 {/* Locations Section */}
-                <div>
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">Location</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Location</h2>
+                <div className='bg-green-100 rounded-xl'>
+                  
                   <form className="space-y-2" onSubmit={handleSubmit}>
                       <input
                         id='user_postcode'
