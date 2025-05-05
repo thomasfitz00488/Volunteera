@@ -7,6 +7,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { Map, AdvancedMarker, APIProvider } from '@vis.gl/react-google-maps';
 import { useUser } from '../contexts/UserContext';
+import confetti from 'canvas-confetti';
 
 
 const OpportunityDetails = () => {
@@ -93,6 +94,24 @@ const OpportunityDetails = () => {
         withCredentials: true,
       });
       setOpportunity(response);
+      confetti({
+        particleCount: 200,
+        startVelocity: 100,
+        origin: { x: 0, y: 1 },
+        angle: 60,
+        spread: 55,
+        colors: ['#00ffcc', '#0099ff', '#ffffff'],
+      });
+    
+      // Bottom right corner
+      confetti({
+        particleCount: 200,
+        startVelocity: 100,
+        origin: { x: 1, y: 1 },
+        angle: 120,
+        spread: 55,
+        colors: ['#00ffcc', '#0099ff', '#ffffff'],
+      });
     } catch (error) {
       console.error('Error applying:', error);
     }
@@ -218,7 +237,9 @@ const OpportunityDetails = () => {
 
                 {/* Apply Button */}
                 <button
-                  className="w-full px-6 py-3 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+                  className={`w-full px-6 py-3 text-sm font-medium rounded-full text-white transition-colors ${
+                    opportunity.has_applied ? 'bg-green-900 hover:bg-green-800' : 'bg-gray-900 hover:bg-green-800'
+                  }`}
                   onClick={user ? (() => setShowModal(true)) : (() => navigate('/login'))}
                   disabled={opportunity.has_applied}
                 >
@@ -261,12 +282,12 @@ const OpportunityDetails = () => {
                 <div className="flex w-full gap-4">
                 <Link 
                   to={`/opportunity/${id}/discussions`} 
-                  className="w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors text-center"
+                  className="bg-gray-100 w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors text-center"
                 >
                   Discussions
                 </Link>
                 <button 
-                  onClick = {copyLink}className="w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors"
+                  onClick = {copyLink}className="bg-gray-100 w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   Share Opportunity
                 </button>

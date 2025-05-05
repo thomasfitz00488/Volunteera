@@ -214,7 +214,7 @@ const Leaderboard = () => {
         >
           <div className="bg-white shadow-lg overflow-hidden h-full"> {/* Removed rounded corners for full-width display */}
             {/* Updated gradient to match volunteer logo */}
-            <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-purple-500 p-6 text-white">
+            <div className="bg-gradient-to-r from-[#A85AC8] to-blue-600 p-6 text-white">
               <motion.h1 
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}

@@ -54,7 +54,7 @@ const DiscussionCard = ({ discussion, user, reload}) => {
 
     return (
         <PageTransition>
-            <div onClick={() => setShowDiscussion(!showDiscussion)} className='bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:bg-gray-100 hover:cursor-pointer'>
+            <div onClick={() => setShowDiscussion(!showDiscussion)} className='mt-3 bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:bg-blue-50 hover:cursor-pointer'>
                 <div className="flex ">
                     <h3 className="text-lg font-semibold text-gray-900">{discussion.title}</h3>
                     <h4 className='ml-auto'> {format(new Date(discussion.time_created), 'MMMM dd, yyyy, h:mm')} </h4>
@@ -69,7 +69,7 @@ const DiscussionCard = ({ discussion, user, reload}) => {
                         {discussion.volunteer_email == user.email ? 
                             <button 
                             onClick={() => deleteDis()}
-                            className="ml-auto px-4 bg-red-500 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-red-50"
+                            className="ml-auto px-4 py-2 bg-blue-100 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-red-500 hover:text-white transition-colors duration-300"
                             >
                                 Delete
                             </button>
@@ -143,7 +143,7 @@ const CreateDiscussion = ({opportunity, onClose, id}) => {
 
     return(
             <div className="fixed top-0 left-0 w-full h-full backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg max-w-5xl w-full">
+                <div className="bg-gray-50 p-6 rounded-lg shadow-lg max-w-5xl w-full">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Title</label>

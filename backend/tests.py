@@ -230,7 +230,7 @@ class test_ModelTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         response = self.client.post("/api/opportunities/1/", data) # checking discussion creation with wrong content
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
         data = {
             'title': 'testOpp',
@@ -247,7 +247,12 @@ class test_ModelTests(TestCase):
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        response = self.client.post("/api/opportunities/1/", data) # checking opportunity update
+        response = self.client.post("/api/opportunities/1/", data) # checking opportunity update when logged in as wrong user
+        self.assertEqual(response.status_code, 403)
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.organization_user)
+        response = self.client.post("/api/opportunities/1/", data) # checking opportunity update when logged in as correct user
         self.assertEqual(response.status_code, 200)
 
         self.client1 = APIClient()

@@ -353,10 +353,10 @@ def api_volunteer_detail(request, id):
 
         if request.data["display_name"] and user.display_name != request.data["display_name"]:
             user.display_name = request.data["display_name"]
-
+        print(request.data)
         if request.data["password"] and request.data["passwordNew"] and request.data["passwordConfirm"]:
-            if check_password(request.data["password"], request.user.password):
-
+            if check_password(request.data["password"], user.user.password):
+                print("hufid")
                 if request.data["passwordNew"] == request.data["password"]:
                     message = "Passwords cannot match"
                     colour = "green"
@@ -871,17 +871,20 @@ def api_opportunity_detail(request, pk):
         
         else:
             try:
-                opportunity.title = request.data['title']
-                opportunity.description = request.data['description']
-                opportunity.requirements = request.data['requirements']
-                opportunity.start_time = request.data['start_time']
-                opportunity.end_time = request.data['end_time']
-                opportunity.start_date = make_aware(datetime.strptime(request.data['start_date'], '%Y-%m-%dT%H:%M'))
-                opportunity.end_date = make_aware(datetime.strptime(request.data['end_date'], '%Y-%m-%dT%H:%M'))
-                opportunity.estimated_duration = request.data['duration']
-                opportunity.capacity = request.data['capacity']
-                opportunity.estimated_effort_ranking = request.data['estimated_effort_ranking']
-                opportunity.save()
+                if(user == opportunity.organization.user):
+                    opportunity.title = request.data['title']
+                    opportunity.description = request.data['description']
+                    opportunity.requirements = request.data['requirements']
+                    opportunity.start_time = request.data['start_time']
+                    opportunity.end_time = request.data['end_time']
+                    opportunity.start_date = make_aware(datetime.strptime(request.data['start_date'], '%Y-%m-%dT%H:%M'))
+                    opportunity.end_date = make_aware(datetime.strptime(request.data['end_date'], '%Y-%m-%dT%H:%M'))
+                    opportunity.estimated_duration = request.data['duration']
+                    opportunity.capacity = request.data['capacity']
+                    opportunity.estimated_effort_ranking = request.data['estimated_effort_ranking']
+                    opportunity.save()
+                else:
+                    return Response({"You cannot update this opportunity"}, status=403)
             except Exception as e:
                 return Response({"error": str(e)}, status=400)
     data = {
@@ -1031,24 +1034,28 @@ def api_list_interests(request):
 def api_apply_opportunity(request, id):
     global stringOfDates
     stringOfDates = ", ".join(request.data['dates'])
+    message = "Applied successfully"
 
     if request.method == "POST":
         status = "pending"
         user = request.user
         volunteer = Volunteer.objects.get(user = user)
         opportunity = Opportunity.objects.get(id = id)
-        cv = opportunity.current_volunteers_count
-        if opportunity.current_volunteers_count >= opportunity.capacity:
-            return Response("Filed to apply, capacity exceeded")
-        message = "Thank you for applying to the opportunity " + opportunity.title + ", we will be in contact shortly after we have reviewed your application!"
-        if opportunity.organization.automatic_accepting:
-            status = "accepted"
-            message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", for the dates " + stringOfDates + ". Thank you for your application!"
-        Application.objects.create(dates_worked = stringOfDates, volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
-        opportunity.current_volunteers_count += 1
-        opportunity.save()
-        Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization.name, message = message)
-    return Response("Applied successfully")
+        if opportunity.capacity > opportunity.current_volunteers_count:
+            cv = opportunity.current_volunteers_count
+            if opportunity.current_volunteers_count >= opportunity.capacity:
+                return Response("Filed to apply, capacity exceeded")
+            message = "Thank you for applying to the opportunity " + opportunity.title + ", we will be in contact shortly after we have reviewed your application!"
+            if opportunity.organization.automatic_accepting:
+                status = "accepted"
+                message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", for the dates " + stringOfDates + ". Thank you for your application!"
+            Application.objects.create(dates_worked = stringOfDates, volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
+            opportunity.current_volunteers_count += 1
+            opportunity.save()
+            Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization.name, message = message)
+        else:
+            message = "Failed to apply, capacity has been reached"
+    return Response(message)
 
 def complete_opportunity(vol, categories, points):
     for cat in categories:
