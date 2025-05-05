@@ -1,42 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import PageTransition from '../components/PageTransition';
-
-const TEAM_MEMBERS = [
-  {
-    name: "Alex Morris",
-    role: "Co-Founder & Full Stack Developer",
-    image: "👨‍💻", // Replace with actual image
-    bio: "Computer Science student at the University of Manitoba with a passion for creating technology that makes a positive impact.",
-    linkedin: "https://linkedin.com/in/amirdzakwan",
-    github: "https://github.com/amirdzakwan"
-  },
-  {
-    name: "Thomas Fitzsimons",
-    role: "Co-Founder & Frontend Developer",
-    image: "👩‍💻", // Replace with actual image
-    bio: "Computer Science student specializing in user experience and frontend development, dedicated to making volunteering accessible to everyone.",
-    linkedin: "https://linkedin.com/in/adelanarbaeyva",
-    github: "https://github.com/adelanarbaeyva"
-  },
-  {
-    name: "William Rodriguez-Ward",
-    role: "Co-Founder & Backend Developer",
-    image: "👨‍💻", // Replace with actual image
-    bio: "Computer Science student focused on backend architecture and database design, committed to building scalable solutions for social good.",
-    linkedin: "https://linkedin.com/in/dylanfarrar",
-    github: "https://github.com/dylanfarrar"
-  },
-  {
-    name: "RUDYYYY",
-    role: "CEO & Main Developer",
-    image: "👨‍💻", // Replace with actual image
-    bio: "Computer Science student focused on backend architecture and database design, committed to building scalable solutions for social good.",
-    linkedin: "https://linkedin.com/in/dylanfarrar",
-    github: "https://github.com/dylanfarrar"
-  }
-];
 
 const TIMELINE = [
   {
@@ -65,6 +29,93 @@ const TIMELINE = [
   },
 ];
 
+const IMPACT_STATS = [
+  { 
+    number: 10000,
+    label: "Volunteers",
+    icon: "👥",
+    description: "Active volunteers making a difference"
+  },
+  { 
+    number: 500,
+    label: "Organizations",
+    icon: "🏢",
+    description: "Partner organizations worldwide"
+  },
+  { 
+    number: 50000,
+    label: "Hours",
+    icon: "⏰",
+    description: "Volunteer hours contributed"
+  },
+  { 
+    number: 100,
+    label: "Communities",
+    icon: "🌍",
+    description: "Communities positively impacted"
+  },
+  { 
+    number: 15,
+    label: "Countries",
+    icon: "🌎",
+    description: "Countries where we're making an impact"
+  }
+];
+
+// Team members data
+const TEAM_MEMBERS = [
+  {
+    name: "Adel Anarbayeva",
+    role: "Project Manager",
+    bio: "Coordinating the team and ensuring timely delivery of features while maintaining project scope and quality.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=Adel+Anarbayeva&background=0D8ABC&color=fff"
+  },
+  {
+    name: "Alex Morris",
+    role: "Full Stack Developer",
+    bio: "Experienced developer working on both frontend and backend components of the Volunteera platform.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=Alex+Morris&background=047857&color=fff"
+  },
+  {
+    name: "Dylan Farrar",
+    role: "Tech Lead",
+    bio: "Overseeing technical implementation and architecture decisions to ensure platform scalability and reliability.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=Dylan+Farrar&background=6D28D9&color=fff"
+  },
+  {
+    name: "Dzakwan Dzulzalani",
+    role: "Frontend Developer",
+    bio: "Focused on creating intuitive and responsive user interfaces to enhance the volunteer experience.",
+    linkedin: "https://www.linkedin.com/in/amirdzakwan/",
+    image: "https://ui-avatars.com/api/?name=Dzakwan+Dzulzalani&background=2563EB&color=fff"
+  },
+  {
+    name: "Rudhr Shaji",
+    role: "Designer",
+    bio: "Creating visually appealing designs and user experiences that make volunteering accessible to everyone.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=Rudhr+Shaji&background=DB2777&color=fff"
+  },
+  {
+    name: "Thomas Fitzsimons",
+    role: "Full Stack Developer",
+    bio: "Building comprehensive solutions across the entire application stack to deliver a seamless volunteering platform.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=Thomas+Fitzsimons&background=0891B2&color=fff"
+  },
+  {
+    name: "William Rodriguez Ward",
+    role: "Full Stack Developer",
+    bio: "Developing end-to-end features with a focus on performance and security for the Volunteera platform.",
+    linkedin: "#",
+    image: "https://ui-avatars.com/api/?name=William+Rodriguez+Ward&background=9333EA&color=fff"
+  }
+];
+
+// AnimatedCounter component for stat numbers
 const AnimatedCounter = ({ value, duration = 2000 }) => {
   const [count, setCount] = useState(0);
   const countRef = useRef(null);
@@ -97,104 +148,20 @@ const AnimatedCounter = ({ value, duration = 2000 }) => {
   return <>{count.toLocaleString()}</>;
 };
 
-const IMPACT_STATS = [
-  { 
-    number: 10000,
-    label: "Volunteers",
-    icon: "👥",
-    description: "Active volunteers making a difference",
-    gradient: "from-blue-500 to-indigo-600",
-    animation: "slide-right"
-  },
-  { 
-    number: 500,
-    label: "Organizations",
-    icon: "🏢",
-    description: "Partner organizations worldwide",
-    gradient: "from-emerald-400 to-green-500",
-    animation: "slide-left"
-  },
-  { 
-    number: 50000,
-    label: "Hours",
-    icon: "⏰",
-    description: "Volunteer hours contributed",
-    gradient: "from-violet-500 to-purple-600",
-    animation: "slide-right"
-  },
-  { 
-    number: 100,
-    label: "Communities",
-    icon: "🌍",
-    description: "Communities positively impacted",
-    gradient: "from-orange-400 to-red-500",
-    animation: "slide-left"
-  },
-  { 
-    number: 15,
-    label: "Countries",
-    icon: "🌎",
-    description: "Countries where we're making an impact",
-    gradient: "from-teal-400 to-cyan-500",
-    animation: "slide-right"
-  }
-];
-
-// Add this SVG map data near your other constants
-const WORLD_MAP_PATH = `M48.83,37.9c-0.41,0.04-1.27,0.43-1.27,0.43l-1.44,0.3l-2.21,0.78l-0.26,0.65l0.13,1.43l-2.08,1.95l-2.86,1.04 l-2.34,1.3l-1.17,1.17l-0.39,2.08l0.52,2.34l1.17,1.69l2.21,0.91l1.69,1.3l2.34,2.34l3.12,1.69l2.34,0.13l2.47-0.13l2.86-0.52 l2.34-0.13l1.69,0.13l1.3,0.65l0.65,1.95l0.52,2.47l1.04,1.82l2.47,0.13l2.34-1.04l2.47-1.69l0.52-2.34l-0.26-2.47l-1.69-1.69 l-1.56-2.34l0.13-2.47l1.69-1.69l1.3-2.34l-0.13-2.47l-1.69-1.69l-1.56-2.34l0.13-2.47l1.69-1.69l1.3-2.34l-0.13-2.47l-1.69-1.69 l-1.56-2.34l0.13-2.47l1.69-1.69l1.3-2.34l-0.13-2.47l-1.69-1.69l-1.56-2.34l0.13-2.47l1.69-1.69l1.3-2.34l-0.13-2.47l-1.69-1.69z`;
-
-// Update the FEATURED_COUNTRIES with more accurate coordinates and add country paths
-const FEATURED_COUNTRIES = [
-  {
-    name: "Canada",
-    x: "15%",
-    y: "20%",
-    delay: 0,
-    path: "M40,20 L60,20 L65,35 L35,35 Z" // Simplified Canada path
-  },
-  {
-    name: "UK",
-    x: "45%",
-    y: "25%",
-    delay: 0.2,
-    path: "M48,30 L50,28 L52,30 L50,32 Z" // Simplified UK path
-  },
-  {
-    name: "Germany",
-    x: "48%",
-    y: "28%",
-    delay: 0.4,
-    path: "M50,30 L52,30 L52,32 L50,32 Z" // Simplified Germany path
-  },
-  {
-    name: "India",
-    x: "65%",
-    y: "45%",
-    delay: 0.6,
-    path: "M65,40 L70,40 L70,45 L65,45 Z" // Simplified India path
-  },
-  {
-    name: "Australia",
-    x: "80%",
-    y: "70%",
-    delay: 0.8,
-    path: "M75,65 L85,65 L85,75 L75,75 Z" // Simplified Australia path
-  }
-];
-
-const AnimatedSection = ({ children, delay = 0 }) => {
-  const [isVisible, setIsVisible] = useState(false);
+// Detect when element is in viewport
+const useInView = (threshold = 0.1) => {
+  const [isInView, setIsInView] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true);
+          setIsInView(true);
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold }
     );
 
     if (ref.current) {
@@ -202,359 +169,279 @@ const AnimatedSection = ({ children, delay = 0 }) => {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [threshold]);
 
-  return (
-    <div ref={ref} className="w-full">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, delay }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-};
-
-// Update the Countries stat section
-const CountriesSection = ({ stat, isVisible }) => {
-  return (
-    <div className="relative w-full aspect-[2/1] max-w-4xl mx-auto">
-      <svg 
-        viewBox="0 0 100 50" 
-        className="w-full h-full"
-        style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.1))' }}
-      >
-        {/* Base World Map */}
-        <path
-          d={WORLD_MAP_PATH}
-          fill="rgba(255,255,255,0.1)"
-          stroke="rgba(255,255,255,0.2)"
-          strokeWidth="0.2"
-        />
-
-        {/* Highlighted Countries */}
-        {FEATURED_COUNTRIES.map((country, i) => (
-          <motion.g key={country.name}>
-            <motion.path
-              d={country.path}
-              fill="rgba(255,255,255,0.3)"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isVisible ? { 
-                opacity: 1, 
-                scale: 1,
-              } : {}}
-              transition={{
-                delay: country.delay + 1,
-                duration: 0.5,
-                type: "spring",
-                stiffness: 100
-              }}
-            />
-            <motion.circle
-              cx={country.x}
-              cy={country.y}
-              r="0.8"
-              fill="white"
-              initial={{ scale: 0 }}
-              animate={isVisible ? { scale: 1 } : {}}
-              transition={{
-                delay: country.delay + 1,
-                duration: 0.5,
-                type: "spring",
-                stiffness: 200
-              }}
-            />
-            <motion.text
-              x={country.x}
-              y={parseFloat(country.y) + 3}
-              fontSize="2"
-              fill="white"
-              textAnchor="middle"
-              initial={{ opacity: 0, y: 5 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{
-                delay: country.delay + 1.2,
-                duration: 0.5
-              }}
-            >
-              {country.name}
-            </motion.text>
-          </motion.g>
-        ))}
-
-        {/* Animated Connection Lines */}
-        {FEATURED_COUNTRIES.map((country, i) => (
-          <motion.line
-            key={`line-${i}`}
-            x1={country.x}
-            y1={country.y}
-            x2={FEATURED_COUNTRIES[(i + 1) % FEATURED_COUNTRIES.length].x}
-            y2={FEATURED_COUNTRIES[(i + 1) % FEATURED_COUNTRIES.length].y}
-            stroke="rgba(255,255,255,0.2)"
-            strokeWidth="0.2"
-            strokeDasharray="1 1"
-            initial={{ pathLength: 0 }}
-            animate={isVisible ? { pathLength: 1 } : {}}
-            transition={{
-              delay: country.delay + 1.5,
-              duration: 1.5,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </svg>
-    </div>
-  );
-};
-
-// Update the StatSection component
-const StatSection = ({ stat, index, isLast }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const content = (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 h-full">
-        <div className="text-white text-center md:text-left">
-          <div className="text-6xl mb-4">{stat.icon}</div>
-          <h3 className="text-3xl font-bold mb-2">{stat.label}</h3>
-          <p className="text-white/80">{stat.description}</p>
-        </div>
-        <div className="text-center">
-          <div className="text-5xl md:text-7xl font-bold text-white mb-2">
-            {isVisible ? (
-              <AnimatedCounter value={stat.number} duration={2500} />
-            ) : '0'}
-            {stat.label === "Hours" && "+"}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (stat.label === "Countries") {
-    return (
-      <div 
-        ref={sectionRef}
-        className="min-h-[70vh] w-full bg-gradient-to-r from-teal-500 to-cyan-600 flex items-center"
-        style={{ marginTop: '-2px' }}
-      >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isVisible ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8 }}
-          className="w-full"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl font-bold text-white mb-2">{stat.label}</h3>
-              <p className="text-white/80">{stat.description}</p>
-              <div className="text-7xl font-bold text-white my-8">
-                {isVisible ? <AnimatedCounter value={stat.number} duration={2500} /> : '0'}
-              </div>
-            </div>
-            <CountriesSection stat={stat} isVisible={isVisible} />
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  return (
-    <div 
-      ref={sectionRef}
-      className="min-h-[70vh] w-full flex items-center"
-      style={{ marginTop: '-2px' }}
-    >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={isVisible ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className={`w-full bg-gradient-to-r ${stat.gradient}`}
-      >
-        <div className="py-20">
-          {content}
-        </div>
-      </motion.div>
-    </div>
-  );
+  return [ref, isInView];
 };
 
 const AboutUs = () => {
+  const [heroRef, heroInView] = useInView();
+  const [missionRef, missionInView] = useInView();
+  const [statsRef, statsInView] = useInView(0.05);
+  const [timelineRef, timelineInView] = useInView(0.1);
+  const [teamRef, teamInView] = useInView(0.1);
+
   return (
     <PageTransition>
-      <div className="min-h-screen">
-        {/* Hero Section with updated background */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          className="relative h-screen flex items-center justify-center overflow-hidden"
-        >
-          {/* Updated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-500 to-blue-600" />
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="relative z-10 text-center px-4">
-            <motion.h1 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-5xl md:text-7xl font-bold text-white mb-6"
-            >
-              Our Mission
-            </motion.h1>
-            <motion.p 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed"
-            >
-              Connecting passionate volunteers with meaningful opportunities to create positive change in communities worldwide.
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1 }}
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-          >
-            <div className="animate-bounce text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Stats Sections - Remove container padding */}
-        <div className="w-full -mt-2">
-          {IMPACT_STATS.map((stat, index) => (
-            <StatSection 
-              key={index} 
-              stat={stat} 
-              index={index}
-              isLast={index === IMPACT_STATS.length - 1}
+      <div className="overflow-hidden">
+        {/* Hero Section - Enhanced with more vibrant colors */}
+        <div ref={heroRef} className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 opacity-90"
+              animate={{ 
+                background: [
+                  "linear-gradient(to bottom right, #2563eb, #9333ea, #ec4899)",
+                  "linear-gradient(to bottom right, #8b5cf6, #3b82f6, #06b6d4)",
+                  "linear-gradient(to bottom right, #ec4899, #8b5cf6, #2563eb)"
+                ]
+              }}
+              transition={{ 
+                duration: 15, 
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
             />
-          ))}
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            
+            {/* Decorative circles */}
+            <div className="absolute top-20 left-20 w-64 h-64 bg-white opacity-10 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-10 right-20 w-72 h-72 bg-pink-300 opacity-10 rounded-full filter blur-3xl"></div>
+          </div>
+
+          <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="text-center"
+            >
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Making Volunteering <span className="block bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 to-yellow-50">Accessible to Everyone</span>
+              </h1>
+              <p className="mx-auto mt-6 max-w-lg text-xl text-white sm:max-w-3xl">
+                Connecting passionate volunteers with meaningful opportunities to create positive change in communities worldwide.
+              </p>
+            </motion.div>
+          </div>
+          
+          <div className="absolute bottom-0 left-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+              <path 
+                fill="#EFFFFD" 
+                fillOpacity="1" 
+                d="M0,64L60,80C120,96,240,128,360,128C480,128,600,96,720,80C840,64,960,64,1080,64C1200,64,1320,64,1380,64L1440,64L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+              ></path>
+            </svg>
+          </div>
         </div>
 
-        {/* About Section */}
-        <AnimatedSection delay={0.2}>
-          <div className="py-32 bg-gradient-to-b from-transparent to-gray-50">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-4xl font-bold text-gray-900 mb-8">About Volunteera</h2>
-              <div className="prose prose-lg max-w-none text-gray-600 space-y-6">
-                <p>
-                  Volunteera was born from a simple observation: while many people want to volunteer, 
-                  finding the right opportunity often proves challenging. Our platform bridges this gap, 
-                  making it easier for volunteers to connect with causes they care about.
-                </p>
-                <p>
-                  By combining modern technology with social impact, we're creating a more connected 
-                  and engaged volunteering community. Our platform not only helps match volunteers 
-                  with opportunities but also helps organizations better manage and engage with their volunteers.
-                </p>
+        {/* Mission & About Section - Added gradient background */}
+        <div ref={missionRef} className="bg-gradient-to-b from-[#EFFFFD] to-[#B8FFF9] py-12 sm:py-16 relative">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dust.png')] opacity-30"></div>
+          
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={missionInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mx-auto max-w-3xl text-center"
+            >
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our Mission</h2>
+              <p className="mt-4 text-lg text-gray-700">
+                Volunteera was born from a simple observation: while many people want to volunteer, 
+                finding the right opportunity often proves challenging. Our platform bridges this gap, 
+                making it easier for volunteers to connect with causes they care about.
+              </p>
+              <p className="mt-4 text-lg text-gray-700">
+                By combining modern technology with social impact, we're creating a more connected 
+                and engaged volunteering community.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Impact Stats Section - More subtle color scheme */}
+        <div ref={statsRef} className="bg-gradient-to-r from-teal-50 to-blue-50 py-12 sm:py-16 relative">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/inspiration-geometry.png')] opacity-5"></div>
+          
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="mx-auto max-w-4xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our Impact</h2>
+              <p className="mt-3 text-xl text-gray-600">
+                Together we're making a difference in communities around the world
+              </p>
+            </div>
+            
+            <dl className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              {IMPACT_STATS.map((stat, index) => {
+                // Unified color scheme with subtle distinction
+                const colors = [
+                  "bg-blue-100 text-blue-800 border-blue-200",
+                  "bg-teal-100 text-teal-800 border-teal-200",
+                  "bg-purple-100 text-purple-800 border-purple-200",
+                  "bg-amber-100 text-amber-800 border-amber-200",
+                  "bg-cyan-100 text-cyan-800 border-cyan-200"
+                ];
+                
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className={`relative overflow-hidden rounded-lg ${colors[index]} p-6 text-center shadow-md border hover:shadow-lg transition-shadow duration-300`}
+                  >
+                    <dt className="truncate text-base font-medium flex items-center justify-center">
+                      <span className="text-2xl mr-2">{stat.icon}</span>
+                      <span>{stat.label}</span>
+                    </dt>
+                    <dd className="mt-2 text-3xl font-bold tracking-tight">
+                      {statsInView ? <AnimatedCounter value={stat.number} /> : 0}
+                      {stat.label === 'Hours' && '+'}
+                    </dd>
+                    <dd className="mt-3 text-sm opacity-80">{stat.description}</dd>
+                  </motion.div>
+                );
+              })}
+            </dl>
+          </div>
+        </div>
+
+        {/* Timeline Section - More colorful timeline nodes */}
+        <div ref={timelineRef} className="bg-gradient-to-b from-[#85F4FF] to-[#EFFFFD] py-16 sm:py-24 relative">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/crisp-paper-ruffles.png')] opacity-20"></div>
+          
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="mx-auto max-w-2xl lg:max-w-4xl">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center">Our Journey</h2>
+              <p className="mt-3 text-xl text-gray-600 text-center mb-12">
+                The story of how Volunteera came to be
+              </p>
+              
+              <div className="relative">
+                {/* Vertical line */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-px bg-gradient-to-b from-purple-400 via-blue-500 to-emerald-500 rounded-full"></div>
+                
+                <div className="space-y-16">
+                  {TIMELINE.map((event, index) => {
+                    // Create a different color for each timeline node
+                    const nodeColors = ["bg-purple-500", "bg-blue-500", "bg-teal-500", "bg-emerald-500"];
+                    
+                    return (
+                      <motion.div 
+                        key={index}
+                        initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                        animate={timelineInView ? { opacity: 1, x: 0 } : {}}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="relative"
+                      >
+                        <div className={`flex items-center ${index % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                          <div className="flex-1">
+                            <div className={`${index % 2 === 0 ? 'lg:pl-8' : 'lg:pr-8'} bg-white p-6 rounded-lg shadow-md relative hover:shadow-lg transition-shadow duration-300 border border-gray-100`}>
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 mr-4 text-3xl">{event.icon}</div>
+                                <div>
+                                  <div className="text-sm text-blue-600 font-semibold">{event.year}</div>
+                                  <h3 className="text-lg font-medium text-gray-900">{event.title}</h3>
+                                </div>
+                              </div>
+                              <p className="mt-3 text-gray-600">{event.description}</p>
+                              
+                              {/* Arrow pointing to timeline */}
+                              <div className={`absolute top-1/2 -mt-2.5 h-0 w-0 border-5 ${
+                                index % 2 === 0 
+                                  ? 'left-0 -ml-5 border-l-0 border-r-white border-t-transparent border-b-transparent' 
+                                  : 'right-0 -mr-5 border-r-0 border-l-white border-t-transparent border-b-transparent'
+                              }`}></div>
+                            </div>
+                          </div>
+                          
+                          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full ${nodeColors[index]} text-white relative z-10 shadow-md">
+                            <span className="text-lg font-semibold">{TIMELINE.length - index}</span>
+                          </div>
+                          
+                          <div className="flex-1"></div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
-        </AnimatedSection>
+        </div>
 
         {/* Team Section */}
-        <AnimatedSection delay={0.3}>
-          <div className="py-32">
-            <h2 className="text-4xl font-bold text-gray-900 text-center mb-16">Meet Our Team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div ref={teamRef} className="bg-gradient-to-b from-[#EFFFFD] to-white py-16 sm:py-24 relative">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')] opacity-10"></div>
+          
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="mx-auto max-w-4xl text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our Team</h2>
+              <p className="mt-3 text-xl text-gray-600">
+                Meet the passionate people behind Volunteera
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {TEAM_MEMBERS.map((member, index) => (
                 <motion.div
-                  key={index}
-                  initial={{ y: 50, opacity: 0 }}
-                  whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="group"
+                  key={member.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={teamInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300"
                 >
-                  <div className="bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-                    <div className="text-center">
-                      <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center">
-                        <span className="text-6xl">{member.image}</span>
-                      </div>
-                      <h3 className="text-2xl font-semibold text-gray-900">{member.name}</h3>
-                      <p className="text-blue-600 mb-4">{member.role}</p>
-                      <p className="text-gray-600 mb-6">{member.bio}</p>
-                      <div className="flex justify-center space-x-4">
-                        <a href={member.linkedin} className="text-gray-400 hover:text-blue-500 transition-colors">
-                          <FaLinkedin className="w-6 h-6" />
-                        </a>
-                        <a href={member.github} className="text-gray-400 hover:text-gray-900 transition-colors">
-                          <FaGithub className="w-6 h-6" />
-                        </a>
-                      </div>
+                  <div className="p-6">
+                    <div className="flex flex-col items-center">
+                      <img 
+                        src={member.image} 
+                        alt={member.name}
+                        className="w-24 h-24 rounded-full object-cover border-2 border-blue-100 mb-4"
+                      />
+                      <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+                      <p className="text-sm text-blue-600 mb-3">{member.role}</p>
+                      <p className="text-sm text-gray-600 text-center mb-4">{member.bio}</p>
+                      <a 
+                        href={member.linkedin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        </svg>
+                        LinkedIn
+                      </a>
                     </div>
                   </div>
                 </motion.div>
               ))}
             </div>
-          </div>
-        </AnimatedSection>
-
-        {/* Timeline Section */}
-        <AnimatedSection delay={0.4}>
-          <div className="py-32">
-            <h2 className="text-4xl font-bold text-gray-900 text-center mb-16">Our Journey</h2>
-            <div className="space-y-12">
-              {TIMELINE.map((event, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ x: index % 2 === 0 ? -50 : 50, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="flex items-center"
-                >
-                  <div className={`flex items-center w-full ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-                    <div className="w-1/2 px-8">
-                      <div className="bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 hover:scale-105">
-                        <div className="flex items-center mb-4">
-                          <span className="text-3xl mr-4">{event.icon}</span>
-                          <span className="text-blue-600 font-semibold">{event.year}</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{event.title}</h3>
-                        <p className="text-gray-600">{event.description}</p>
-                      </div>
-                    </div>
-                    <div className="w-px h-full bg-gray-200 relative">
-                      <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-blue-600" />
-                    </div>
-                    <div className="w-1/2" />
-                  </div>
-                </motion.div>
-              ))}
+            
+            <div className="mt-16 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="px-6 py-8 sm:p-10">
+                <h3 className="text-2xl font-bold text-gray-900 text-center">Join Us Today</h3>
+                <p className="mt-4 text-gray-600 text-center">
+                  Whether you're looking to volunteer or seeking volunteers for your organization, 
+                  Volunteera makes it easy to connect and make a difference.
+                </p>
+                <div className="mt-8 flex justify-center">
+                  <a
+                    href="/register"
+                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+                  >
+                    Get Started
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </AnimatedSection>
+        </div>
       </div>
     </PageTransition>
   );
 };
 
-export default AboutUs; 
+export default AboutUs;

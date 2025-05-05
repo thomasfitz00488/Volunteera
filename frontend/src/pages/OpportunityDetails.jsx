@@ -1,15 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useNavigate } from 'react-router';
 import PageTransition from '../components/PageTransition';
-import { useUser } from '../contexts/UserContext';
 import api from '../utils/api';
 import { format } from 'date-fns';
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { Map, AdvancedMarker, APIProvider } from '@vis.gl/react-google-maps';
+import { useUser } from '../contexts/UserContext';
+import confetti from 'canvas-confetti';
+
 
 const OpportunityDetails = () => {
   const { id } = useParams();
   const [opportunity, setOpportunity] = useState(null);
-  const mapRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDates, setSelectedDates] = useState([])
+  const [marker, setMarker] = useState(null);
   const { user } = useUser();
+  const navigate = useNavigate()
+  
+
 
   useEffect(() => {
     const fetchOpportunity = async () => {
@@ -19,7 +29,11 @@ const OpportunityDetails = () => {
       });
         setOpportunity(response);
         initMap(response);
-        console.log(response)
+        const x = {
+          lat: response.latitude,
+          lng: response.longitude
+        };
+        setMarker({ x });
       } catch (error) {
         console.error('Error fetching opportunity:', error);
       }
@@ -42,21 +56,89 @@ const OpportunityDetails = () => {
     });
   };
 
-  const handleApply = async () => {
+  const handleDateClick = (clickedDate) => {
+
+    setSelectedDates((prevDates) => {
+      let index = -1
+    for (let i = 0; i < prevDates.length; i++) {
+      if (prevDates[i].getTime() === clickedDate.getTime()) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index !== -1) {
+      const updatedDates = [...prevDates];
+      updatedDates.splice(index, 1);
+      return updatedDates;
+    } else {
+      return [...prevDates, clickedDate]
+    }
+    });
+  }
+
+  const handleConfirm = () => {
+    setShowModal(false);
+    handleApply(selectedDates)
+  }
+
+
+  const handleApply = async (selectedDates) => {
     try {
-      await api.post(`/opportunities/${id}/apply/`)
+      await api.post(`/opportunities/${id}/apply/`, {
+        dates: selectedDates.map(date => date.toISOString().split("T")[0]),
+    })
+
       // Refresh opportunity data to update application status
       const response = await api.get(`/opportunities/${id}/`, {
         withCredentials: true,
       });
       setOpportunity(response);
+      confetti({
+        particleCount: 200,
+        startVelocity: 100,
+        origin: { x: 0, y: 1 },
+        angle: 60,
+        spread: 55,
+        colors: ['#00ffcc', '#0099ff', '#ffffff'],
+      });
+    
+      // Bottom right corner
+      confetti({
+        particleCount: 200,
+        startVelocity: 100,
+        origin: { x: 1, y: 1 },
+        angle: 120,
+        spread: 55,
+        colors: ['#00ffcc', '#0099ff', '#ffffff'],
+      });
     } catch (error) {
       console.error('Error applying:', error);
     }
   };
 
-  if (!opportunity) return null;
+  const isDateAvailible = (date) => {
+    const startObject = new Date(opportunity.start_date)
+    const endObject = new Date(opportunity.end_date)
+    const dateTime = date.getTime();
+    const startTime = startObject.getTime();
+    const endTime = endObject.getTime();
 
+    return dateTime >= startTime && dateTime <= endTime
+  }
+
+  const copyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl)
+      .then(() => {
+        alert("URL copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  };
+
+  if (!opportunity) return null;
   return (
     <PageTransition>
       <div className="min-h-screen bg-white">
@@ -84,6 +166,7 @@ const OpportunityDetails = () => {
                     </span>
                     <span className="text-gray-500">•</span>
                     <span className="text-gray-500">{opportunity.organization?.name}</span>
+                    <span className="text-gray-500">{opportunity.organization.approved && ("✔️")}</span>
                   </div>
                 </div>
 
@@ -109,6 +192,11 @@ const OpportunityDetails = () => {
                 </div>
 
                 {/* Impact */}
+                <div>
+                  <h2 className="text-xl font-medium text-gray-900 mb-4">Date</h2>
+                  <p className="text-gray-600">{opportunity.start_date.split("T")[0]} to {opportunity.end_date.split("T")[0]}</p>
+                </div>
+
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Estimated Shift Times</h2>
                   <p className="text-gray-600">{opportunity.start_time}:00 - {opportunity.end_time}:00</p>
@@ -149,24 +237,81 @@ const OpportunityDetails = () => {
 
                 {/* Apply Button */}
                 <button
-                  className="w-full px-6 py-3 text-sm font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800 transition-colors"
-                  onClick={handleApply}
+                  className={`w-full px-6 py-3 text-sm font-medium rounded-full text-white transition-colors ${
+                    opportunity.has_applied ? 'bg-green-900 hover:bg-green-800' : 'bg-gray-900 hover:bg-green-800'
+                  }`}
+                  onClick={user ? (() => setShowModal(true)) : (() => navigate('/login'))}
                   disabled={opportunity.has_applied}
                 >
                   {opportunity.has_applied ? 'Applied' : 'Apply Now'}
                 </button>
 
-                {/* Share Button */}
-                <Link to={`/opportunity/${id}/discussions`} className="w-full px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">
+                {/*Calendar Modal */}
+                {showModal && (
+                  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 className="text-lg font-bold">Select a Date or Dates</h2>
+                    <p className="text-gray-600">Choose when you want to apply for.</p>
+                    
+                    <Calendar onClickDay={handleDateClick} tileClassName={({ date }) =>
+                  selectedDates.some((d) => d.getTime() === date.getTime()) ? "highlight" : null
+                  } 
+                  tileDisabled={({ date }) => !isDateAvailible(date)}
+                  />
+                    
+                    <p className="font-semibold mt-2">Selected Dates:</p>
+                    {selectedDates.map((d, index) => (
+                      <p key={index} className="ml-4">{d.toDateString()}</p>
+                    ))}
+
+                    <div className="flex justify-end space-x-4 mt-4">
+                      <button 
+                        onClick={() => setShowModal(false)} 
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded">
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={handleConfirm} 
+                        className="px-4 py-2 bg-blue-500 text-white rounded">
+                        Confirm Date
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+                <div className="flex w-full gap-4">
+                <Link 
+                  to={`/opportunity/${id}/discussions`} 
+                  className="bg-gray-100 w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors text-center"
+                >
                   Discussions
                 </Link>
-                <Link className="w-full px-6 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick = {copyLink}className="bg-gray-100 w-1/2 px-10 py-3 text-sm font-medium rounded-full text-gray-900 border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
                   Share Opportunity
-                </Link>
+                </button>
               </div>
+              </div>
+              
             </div>
           </div>
-          <div ref={mapRef} className="w-full h-[300px] rounded-lg overflow-hidden" />
+          <div className="mt-2 h-[400px] w-full">
+          <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+            <Map
+                defaultCenter={marker}
+                defaultZoom={13}
+                reuseMaps={true}
+                mapId="107f378fc363e5a7"
+            >
+                {marker && (
+                <AdvancedMarker
+                    position={marker}
+                />
+                )}
+            </Map>
+          </APIProvider>
+          </div>
         </div>
       </div>
     </PageTransition>

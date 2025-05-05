@@ -163,6 +163,7 @@ class Application(models.Model):
     date_applied = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     notes = models.TextField(blank=True)
+    dates_worked = models.CharField(max_length=1024)
 
     class Meta:
         unique_together = ['volunteer', 'opportunity']

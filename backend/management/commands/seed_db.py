@@ -553,7 +553,7 @@ class Command(BaseCommand):
             }
         )
         if created:  
-            opportunity.categories.set([Category.objects.get(name="Educaitonal")])
+            opportunity.categories.set([Category.objects.get(name="Educational")])
 
 
         opportunity, created = Opportunity.objects.get_or_create(
@@ -1308,6 +1308,11 @@ class Command(BaseCommand):
                 'name': 'Elderly',
                 'category': elderly,
                 'description': 'Helping the elderly people to bring kindness into the world'
+            },
+            {
+                'name': 'Retail',
+                'category': community,
+                'description': 'Helping retail shops sell items and manage their stock'
             },
             {
                 'name': 'Animals',

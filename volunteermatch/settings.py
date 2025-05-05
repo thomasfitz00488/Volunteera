@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'InsecureDebug')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,10.2.8.17").split(",")
 
 AUTH_USER_MODEL = 'backend.User'
 
@@ -52,8 +52,20 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://10.2.8.17",
+    "http://10.2.8.17:8000",
+    "http://10.2.8.17:5000"
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://10.2.8.17"
+]
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
@@ -82,6 +94,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -91,10 +104,26 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-
+    'channels',
 
 
 ]
+USE_INMEMORY = os.getenv("USE_INMEMORY_CHANNELS", "1") == "1"
+if USE_INMEMORY:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        }
+    }
 
 SITE_ID = 1
 
@@ -147,6 +176,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'volunteermatch.wsgi.application'
 
+# need this for web sockets
+ASGI_APPLICATION = "volunteermatch.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # Use Redis in production
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

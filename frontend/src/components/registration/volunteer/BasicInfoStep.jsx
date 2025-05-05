@@ -2,12 +2,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { useState } from 'react';
+import {HASUPPERCASE, HASSPECIALCHAR, HASNUMBER, MINLENGTH} from '../../constants.js';
 
 const BasicInfoStep = ({ formData, setFormData, onNext, onBack }) => {
   const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
   const handleSubmit = (e) => {
     e.preventDefault();
-    onNext();
+    if(message == "Password is strong." && formData.password == formData.password2){
+      onNext();
+    }
+    
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -23,7 +28,7 @@ const BasicInfoStep = ({ formData, setFormData, onNext, onBack }) => {
         }),
       });
       
-      const data = await response.json();
+      await response.json();
       if (!response.ok) {
         throw new Error('Google registration failed');
       }
@@ -31,6 +36,25 @@ const BasicInfoStep = ({ formData, setFormData, onNext, onBack }) => {
       //onRegisterSuccess(data);
     } catch (err) {
       console.log(err.message);
+    }
+  };
+
+  const validatePassword = (password) => {
+    const minLength = MINLENGTH;
+    const hasNumber = HASNUMBER;
+    const hasSpecialChar = HASSPECIALCHAR;
+    const hasUppercase = HASUPPERCASE;
+
+    if (password.length < minLength) {
+      setMessage("Password must be at least 8 characters.");
+    } else if (!hasNumber.test(password)) {
+      setMessage("Password must include a number.");
+    } else if (!hasSpecialChar.test(password)) {
+      setMessage("Password must include a special character.");
+    } else if (!hasUppercase.test(password)) {
+      setMessage("Password must include an uppercase letter.");
+    } else {
+      setMessage("Password is strong.");
     }
   };
 
@@ -102,17 +126,23 @@ const BasicInfoStep = ({ formData, setFormData, onNext, onBack }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password
           </label>
           <input
+            id="password"
             type="password"
             required
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            onChange={(e) => {
+              const newPassword = e.target.value;
+              setFormData({ ...formData, password: newPassword });
+              validatePassword(newPassword);
+            }}
           />
         </div>
+
+        <p id="message" className="text-sm mt-1 text-black font-bold">{message}</p>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

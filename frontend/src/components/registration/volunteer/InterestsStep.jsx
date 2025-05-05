@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const character = {
   'Animal': '🐶',
   'Elderly': '👵',
-  'Greener_Planet': '🌱',
+  'Greener Planet': '🌱',
   'Sports': '⚽',
   'Medical': '🧬',
   'Disability': '♿',

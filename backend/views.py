@@ -76,7 +76,7 @@ def calculate_impact(charity, volunteer):
     else:
         participants_at_application = current_application.current_volunteers
         date_time_applied = current_application.date_applied
-        duration_taken = int(datetime.now().day - current_application.date_applied.day)
+        duration_taken = int(len(current_application.dates_worked.split(",")))
 
     # Open and load JSON file to get population data
     file_path = os.path.join(os.path.dirname(__file__), "components", "gb.json")
@@ -217,7 +217,7 @@ def calculate_impact(charity, volunteer):
 @api_view(["DELETE"])
 def delete_friendship(request, friend_id, volunteer_id):
     if request.method == "DELETE":
-        if volunteer_id != request.user.id:
+        if volunteer_id != Volunteer.objects.get(user = request.user).id:
             return Response({'error': 'Only the user of the friend can remove friends'},
                        status=status.HTTP_403_FORBIDDEN)
         u = Volunteer.objects.get(id = volunteer_id)
@@ -234,7 +234,7 @@ def delete_friendship(request, friend_id, volunteer_id):
 @api_view(["POST"])
 def create_friendship(request, friend_id, volunteer_id):
     if request.method == "POST":
-        if volunteer_id != request.user.id:
+        if volunteer_id != Volunteer.objects.get(user = request.user).id:
             return Response({'error': 'Only the user of the friend can remove friends'},
                        status=status.HTTP_403_FORBIDDEN)
         u = Volunteer.objects.get(id = volunteer_id)
@@ -248,7 +248,7 @@ def create_friendship(request, friend_id, volunteer_id):
 @api_view(["POST"])
 def accept_friendship(request, friend_id, volunteer_id):
     if request.method == "POST":
-        if volunteer_id != request.user.id:
+        if volunteer_id != Volunteer.objects.get(user = request.user).id:
             return Response({'error': 'Only the user of the friend can remove friends'},
                        status=status.HTTP_403_FORBIDDEN)
         u = Volunteer.objects.get(id = volunteer_id)
@@ -291,7 +291,10 @@ def api_volunteer_list(request):
 def api_volunteer_pending(request, id):
     data = [{
         'id': app.volunteer.user.id,
-        'application_id': app.id,
+        'application': {
+            'id': app.id,
+            'dates_worked': app.dates_worked
+        },
         'volunteer_id': app.volunteer.id,
         'f_name': app.volunteer.user.first_name,
         'l_name': app.volunteer.user.last_name,
@@ -317,6 +320,10 @@ def api_volunteer_pending(request, id):
 def api_volunteer_requested(request, id):
     data = [{
         'id': app.volunteer.user.id,
+        'application': {
+            'id': app.id,
+            'dates_worked': app.dates_worked
+        },
         'application_id': app.id,
         'volunteer_id': app.volunteer.id,
         'f_name': app.volunteer.user.first_name,
@@ -342,7 +349,6 @@ def api_volunteer_requested(request, id):
 @api_view(['GET', 'PUT'])
 def api_volunteer_detail(request, id):
     user = Volunteer.objects.get(id = id)
-    
     if request.method == 'PUT':
         message = "Succsessfully updated"
         colour = "green"
@@ -352,10 +358,10 @@ def api_volunteer_detail(request, id):
 
         if request.data["display_name"] and user.display_name != request.data["display_name"]:
             user.display_name = request.data["display_name"]
-
+        print(request.data)
         if request.data["password"] and request.data["passwordNew"] and request.data["passwordConfirm"]:
-            if check_password(request.data["password"], request.user.password):
-
+            if check_password(request.data["password"], user.user.password):
+                print("hufid")
                 if request.data["passwordNew"] == request.data["password"]:
                     message = "Passwords cannot match"
                     colour = "green"
@@ -459,7 +465,8 @@ def api_volunteer_detail(request, id):
         "is_user": bool(
             request.user == user.user
         ),
-        'interests': [interest.id for interest in user.interests.all()],
+        'interests': [{'id': interest.id, 'name': interest.name, 'category': interest.category.name} for interest in user.interests.all()],
+        'interests_ids': [interest.id for interest in user.interests.all()],
         'showName': user.name_share_public,
         'showFriends': user.public_friends
     }
@@ -930,6 +937,7 @@ def api_opportunity_list(request):
         'organization': {
             'name': opp.organization.name,
             'logo': opp.organization.logo.url if opp.organization.logo else None,
+            'approved': opp.organization.approved,
         },
         'location_name': opp.location_name,
         'latitude': opp.latitude,
@@ -973,17 +981,20 @@ def api_opportunity_detail(request, pk):
         
         else:
             try:
-                opportunity.title = request.data['title']
-                opportunity.description = request.data['description']
-                opportunity.requirements = request.data['requirements']
-                opportunity.start_time = request.data['start_time']
-                opportunity.end_time = request.data['end_time']
-                opportunity.start_date = make_aware(datetime.strptime(request.data['start_date'], '%Y-%m-%dT%H:%M'))
-                opportunity.end_date = make_aware(datetime.strptime(request.data['end_date'], '%Y-%m-%dT%H:%M'))
-                opportunity.estimated_duration = request.data['duration']
-                opportunity.capacity = request.data['capacity']
-                opportunity.estimated_effort_ranking = request.data['estimated_effort_ranking']
-                opportunity.save()
+                if(user == opportunity.organization.user):
+                    opportunity.title = request.data['title']
+                    opportunity.description = request.data['description']
+                    opportunity.requirements = request.data['requirements']
+                    opportunity.start_time = request.data['start_time']
+                    opportunity.end_time = request.data['end_time']
+                    opportunity.start_date = make_aware(datetime.strptime(request.data['start_date'], '%Y-%m-%dT%H:%M'))
+                    opportunity.end_date = make_aware(datetime.strptime(request.data['end_date'], '%Y-%m-%dT%H:%M'))
+                    opportunity.estimated_duration = request.data['duration']
+                    opportunity.capacity = request.data['capacity']
+                    opportunity.estimated_effort_ranking = request.data['estimated_effort_ranking']
+                    opportunity.save()
+                else:
+                    return Response({"You cannot update this opportunity"}, status=403)
             except Exception as e:
                 return Response({"error": str(e)}, status=400)
     data = {
@@ -994,6 +1005,7 @@ def api_opportunity_detail(request, pk):
         'organization': {
             'name': opportunity.organization.name,
             'logo': opportunity.organization.logo.url if opportunity.organization.logo else None,
+            'approved': opportunity.organization.approved,
         },
         'location_name': opportunity.location_name,
         'latitude': opportunity.latitude,
@@ -1130,23 +1142,30 @@ def api_list_interests(request):
 
 @api_view(["POST"])
 def api_apply_opportunity(request, id):
+    global stringOfDates
+    stringOfDates = ", ".join(request.data['dates'])
+    message = "Applied successfully"
+
     if request.method == "POST":
         status = "pending"
         user = request.user
         volunteer = Volunteer.objects.get(user = user)
         opportunity = Opportunity.objects.get(id = id)
-        cv = opportunity.current_volunteers_count
-        if opportunity.current_volunteers_count >= opportunity.capacity:
-            return Response("Filed to apply, capacity exceeded")
-        message = "Thank you for applying to the opportunity " + opportunity.title + ", we will be in contact shortly after we have reviewed your application!"
-        if opportunity.organization.automatic_accepting:
-            status = "accepted"
-            message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", Thank you for your application!"
-        Application.objects.create(volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
-        opportunity.current_volunteers_count += 1
-        opportunity.save()
-        Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization, message = message)
-    return Response("Applied successfully")
+        if opportunity.capacity > opportunity.current_volunteers_count:
+            cv = opportunity.current_volunteers_count
+            if opportunity.current_volunteers_count >= opportunity.capacity:
+                return Response("Filed to apply, capacity exceeded")
+            message = "Thank you for applying to the opportunity " + opportunity.title + ", we will be in contact shortly after we have reviewed your application!"
+            if opportunity.organization.automatic_accepting:
+                status = "accepted"
+                message = "Automatic Message: You have been accepted into the opportunity " + opportunity.title + ", for the dates " + stringOfDates + ". Thank you for your application!"
+            Application.objects.create(dates_worked = stringOfDates, volunteer = volunteer, opportunity = opportunity, status = status, current_volunteers = cv)
+            opportunity.current_volunteers_count += 1
+            opportunity.save()
+            Messages.objects.create(volunteer = volunteer, from_person = opportunity.organization.name, message = message)
+        else:
+            message = "Failed to apply, capacity has been reached"
+    return Response(message)
 
 def complete_opportunity(vol, categories, points):
     for cat in categories:
@@ -1180,7 +1199,7 @@ def api_application_update(request, id, mode):
         organisation = app.opportunity.organization.name
         opportunity = app.opportunity.title
         if mode == "accepted":
-            message = "Hi there, thank you for your recent application to our " + opportunity + " opportunity, we are contacting you to let you know that we have approved your application and were excited to see you soon!"
+            message = message = "Hi there, thank you for your recent application to our " + opportunity + " opportunity, we are contacting you to let you know that we have approved your application for the dates " + stringOfDates +" and we're excited to see you soon!"
         elif mode == "requesting_complete":
             message = "Hi again, we have recieved your request to tick off you application for " + opportunity + ", it is under review and you should hear from us again soon!"
         elif mode == "rejected":
