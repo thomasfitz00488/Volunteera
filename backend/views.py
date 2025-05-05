@@ -31,7 +31,11 @@ from geopy.exc import GeocoderTimedOut
 from geopy.distance import geodesic
 
 from django.utils import timezone
-
+import resend
+import random
+import string
+from django.core.mail import send_mail
+from django.utils import timezone
 
 # Use this file for your templated views only
 from django.http import HttpResponse, HttpResponseForbidden
@@ -42,6 +46,7 @@ from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from django.contrib.auth.hashers import check_password
+from urllib.parse import urlparse
 
 @api_view(["GET"])
 def list_pending_friendships(request):
@@ -605,6 +610,56 @@ def charity_details(request, reg_number, suffix=0):
     except requests.RequestException as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+@require_GET
+def charity_contact_information(request, reg_number, suffix=0):
+    if not reg_number:
+        return JsonResponse({'error': 'Registration number required'}, status=400)
+
+    api_url = f"https://api.charitycommission.gov.uk/register/api/charitycontactinformation/{reg_number}/{suffix}"
+    headers = {
+        'Ocp-Apim-Subscription-Key': settings.CHARITY_API_KEY,
+        'Cache-Control': 'no-cache'
+    }
+
+    try:
+        response = requests.get(api_url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Process the web URL to extract just the domain
+        web_url = data.get('web', '')
+        domain = web_url
+        
+        if web_url:
+            # Add protocol if not present for proper URL parsing
+            if not web_url.startswith('http://') and not web_url.startswith('https://'):
+                parse_url = f"https://{web_url}"
+            else:
+                parse_url = web_url
+                
+            try:
+                parsed_url = urlparse(parse_url)
+                # Get the netloc (network location part, i.e., the domain)
+                domain = parsed_url.netloc
+                # If netloc is empty, use the original URL
+                if not domain:
+                    domain = web_url
+                # Remove 'www.' prefix if present
+                elif domain.startswith('www.'):
+                    domain = domain[4:]
+            except Exception:
+                # If parsing fails, just use the original URL
+                domain = web_url
+        
+        return JsonResponse({
+            'contact_address': data.get('contact_address', ''),
+            'phone': data.get('phone', ''),
+            'email': data.get('email', ''),
+            'web': domain
+        })
+    except requests.RequestException as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
 @api_view(['POST'])
 def login_view(request):
     email = request.data.get('email')
@@ -754,6 +809,9 @@ def register_volunteer(request):
         print (e)
         return Response({'error': str(e)}, status=400)
 
+def generate_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
 @api_view(['POST'])
 def register_organization(request):
     try:
@@ -792,9 +850,26 @@ def register_organization(request):
             charity_number=charity_number,
             description=description,
             logo=logo,
-            approved=False  # Organizations need admin approval
+            approved=False  # Organizations need email verification
         )
 
+        # Generate OTP and create verification record
+        otp_code = generate_otp()
+        OrganizationOTP.objects.create(organization=organization, otp_code=otp_code)
+        
+        # Send verification email
+        subject = 'Verify your Volunteera organization account'
+        resend.Emails.send({
+            "from": "verify@volunteermatch.dylanfarrar.com",  # Must be verified in Resend
+            "to": [email],
+            "subject": subject,
+            "html": f"""
+                <p>Thank you for registering with Volunteera!</p>
+                <p>Your verification code is: <strong>{otp_code}</strong></p>
+                <p>Please enter this code in the verification page to activate your account.</p>
+                <p>This code will expire in 24 hours.</p>
+            """,
+        })
         # Generate tokens
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -802,7 +877,8 @@ def register_organization(request):
             'access': str(refresh.access_token),
             'user': {
                 'email': user.email,
-                'is_organization': True
+                'is_organization': True,
+                'needs_verification': True
             }
         })
 
@@ -813,6 +889,40 @@ def register_organization(request):
         return Response({
             'error': str(e)
         }, status=400)
+
+@api_view(['POST'])
+def verify_organization(request):
+    try:
+        email = request.data.get('email')
+        otp_code = request.data.get('otp_code')
+        
+        if not email or not otp_code:
+            return Response({'error': 'Email and OTP code are required'}, status=400)
+        
+        try:
+            user = User.objects.get(email=email)
+            organization = user.organization
+            otp = OrganizationOTP.objects.get(organization=organization)
+        except (User.DoesNotExist, Organization.DoesNotExist, OrganizationOTP.DoesNotExist):
+            return Response({'error': 'Invalid email or OTP'}, status=400)
+        
+        if otp.otp_code != otp_code:
+            return Response({'error': 'Invalid OTP code'}, status=400)
+        
+        if not otp.is_valid():
+            return Response({'error': 'OTP has expired'}, status=400)
+        
+        # Verify the organization
+        organization.approved = True
+        organization.save()
+        
+        # Delete the OTP record
+        otp.delete()
+        
+        return Response({'message': 'Organization verified successfully'})
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['GET', 'POST'])
 def api_opportunity_list(request):

@@ -1,1 +1,0 @@
-import{n as s}from"./chunk-HA7DTUK3-Dw2W5fJk.js";function i(){return s.jsx("div",{className:"spinner-container",children:s.jsx("div",{className:"spinner",role:"status",children:s.jsx("span",{className:"visually-hidden",children:"Loading..."})})})}export{i as S};

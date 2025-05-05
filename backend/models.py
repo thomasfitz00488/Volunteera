@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import os
 import json
+from django.utils import timezone
+
 from django.core.exceptions import ValidationError
 
 class User(AbstractUser):
@@ -84,6 +86,18 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+class OrganizationOTP(models.Model):
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE)
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"OTP for {self.organization.name}"
+
+    def is_valid(self):
+        # OTP is valid for 24 hours
+        return timezone.now() < self.created_at + timezone.timedelta(hours=24)
 
 class Opportunity(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='opportunities')

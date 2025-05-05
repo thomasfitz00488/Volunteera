@@ -24,11 +24,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'InsecureDebug')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,10.2.8.17").split(",")
 
 AUTH_USER_MODEL = 'backend.User'
 
+DEFAULT_FROM_EMAIL = 'verify@volunteermatch.dylanfarrar.com'
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import debounce from 'lodash/debounce';
+import { useNavigate } from 'react-router';
 
 const OrganizationRegistration = ({ onRegisterSuccess }) => {
   const [step, setStep] = useState(1);
@@ -8,7 +9,8 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
     charity_number: '',
     description: '',
     logo: null,
-    selected_charity_data: null
+    selected_charity_data: null,
+    contact_info: null
   });
   
   const [userData, setUserData] = useState({
@@ -18,11 +20,61 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
     password2: ''
   });
 
+  const [domainVerification, setDomainVerification] = useState({
+    verified: false,
+    message: '',
+    charityDomain: '',
+    requiresManualApproval: false,
+    manualApprovalRequested: false
+  });
+
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const searchContainerRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Check email domain whenever user changes email or charity domain is updated
+  useEffect(() => {
+    if (userData.email && domainVerification.charityDomain) {
+      validateEmailDomain();
+    }
+  }, [userData.email, domainVerification.charityDomain]);
+
+  // Validate if user email matches charity domain
+  const validateEmailDomain = () => {
+    const emailDomain = userData.email.split('@')[1];
+    const charityDomain = domainVerification.charityDomain;
+    
+    if (!emailDomain) {
+      setDomainVerification(prev => ({
+        ...prev,
+        verified: false,
+        message: 'Please enter a valid email address',
+        requiresManualApproval: false
+      }));
+      return;
+    }
+
+    if (emailDomain === charityDomain) {
+      setDomainVerification(prev => ({
+        ...prev,
+        verified: true,
+        message: `Email verified with domain ${charityDomain}`,
+        requiresManualApproval: false,
+        manualApprovalRequested: false
+      }));
+    } else {
+      setDomainVerification(prev => ({
+        ...prev,
+        verified: false,
+        message: `Email domain doesn't match charity domain ${charityDomain || 'unknown'}`,
+        requiresManualApproval: true
+      }));
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -99,8 +151,34 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
           description: data.activities
         }));
       }
+      
+      // Also fetch contact information
+      await fetchCharityContactInfo(regNumber, suffix);
     } catch (err) {
       console.error('Failed to fetch charity details:', err);
+    }
+  };
+
+  const fetchCharityContactInfo = async (regNumber, suffix = 0) => {
+    try {
+      const response = await fetch(`/api/charity-contact-information/${regNumber}/${suffix}`);
+      const data = await response.json();
+      
+      // Store contact info and extract domain for validation
+      setCharityData(prev => ({
+        ...prev,
+        contact_info: data
+      }));
+      
+      // Set the domain for validation
+      if (data.web) {
+        setDomainVerification(prev => ({
+          ...prev,
+          charityDomain: data.web
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch charity contact info:', err);
     }
   };
 
@@ -126,11 +204,15 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
     
     const combinedData = {
       ...charityData,
-      ...userData
+      ...userData,
+      domain_verified: domainVerification.verified,
+      manual_approval_requested: domainVerification.manualApprovalRequested
     };
 
     Object.keys(combinedData).forEach(key => {
       if (key === 'selected_charity_data' && combinedData[key]) {
+        formDataToSend.append(key, JSON.stringify(combinedData[key]));
+      } else if (key === 'contact_info' && combinedData[key]) {
         formDataToSend.append(key, JSON.stringify(combinedData[key]));
       } else if (combinedData[key] !== null) {
         formDataToSend.append(key, combinedData[key]);
@@ -148,7 +230,14 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
         throw new Error(data.error || 'Registration failed');
       }
 
-      onRegisterSuccess(data);
+      // If domain was verified or manual approval requested
+      if (domainVerification.verified) {
+        // Redirect to verification page if email verification is needed
+        navigate('/verify-organization', { state: { email: userData.email } });
+      } else {
+        // Redirect to a waiting for approval page
+        navigate('/login', { state: { message: 'Your organization registration requires manual approval. You will receive an email when your account is approved.' } });
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -307,6 +396,43 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 onChange={(e) => setUserData({...userData, email: e.target.value})}
               />
+              
+              {/* Email domain verification status message */}
+              {domainVerification.charityDomain && userData.email && (
+                <div className={`mt-1 text-sm ${domainVerification.verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {domainVerification.message}
+                </div>
+              )}
+              
+              {/* Manual approval checkbox */}
+              {domainVerification.requiresManualApproval && (
+                <div className="mt-4">
+                  <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="manual-approval"
+                        name="manual-approval"
+                        type="checkbox"
+                        checked={domainVerification.manualApprovalRequested}
+                        onChange={(e) => setDomainVerification({
+                          ...domainVerification, 
+                          manualApprovalRequested: e.target.checked
+                        })}
+                        className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="manual-approval" className="font-medium text-gray-700">
+                        Request Manual Approval
+                      </label>
+                      <p className="text-gray-500">
+                        Your email doesn't match the charity's domain. Check this box to request manual verification. 
+                        Note: No verification email will be sent and admin approval will be required.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -358,7 +484,12 @@ const OrganizationRegistration = ({ onRegisterSuccess }) => {
               </button>
               <button
                 type="submit"
-                className="w-1/2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={(!domainVerification.verified && !domainVerification.manualApprovalRequested)}
+                className={`w-1/2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                  (!domainVerification.verified && !domainVerification.manualApprovalRequested) 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                }`}
               >
                 Register
               </button>

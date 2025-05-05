@@ -9,6 +9,7 @@ export default [
     route("/register", "./pages/Register.jsx"),
     route("/register/volunteer", "./pages/VolunteerRegister.jsx"),
     route("/register/organization", "./pages/OrganizationRegister.jsx"),
+    route("/verify-organization", "./pages/OrganizationVerify.jsx"),
     route("/about", "./pages/AboutUs.jsx"),
     route("/opportunities/create", "./pages/CreateOpportunity.jsx"),
     route("/dashboard", "./pages/Dashboard.jsx"),
