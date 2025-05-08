@@ -54,12 +54,6 @@ const Home = () => {
                         >
                           Volunteera
                         </span>
-                        <span className="absolute -top-3 right-1 text-xs font-normal text-gray-400 tracking-wide">
-                          terra: earth (latin)
-                        </span>
-                        <span className="absolute -bottom-3 left-1 text-xs font-normal text-gray-400 tracking-wide">
-                          volunteer (english)
-                        </span>
                       </span>
                     </span>
                   </h1>
